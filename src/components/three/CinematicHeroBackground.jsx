@@ -1,12 +1,10 @@
 import { useRef, useEffect, useCallback } from 'react';
 
-/* ─── Particle configuration ────────────────────────────────────── */
 const PARTICLE_COUNT = 180;
 
 function makeParticle(W, H) {
   const kind = Math.random();
   if (kind < 0.55) {
-    // rising ember / dust
     return {
       type: 'ember',
       x: Math.random() * W,
@@ -20,7 +18,6 @@ function makeParticle(W, H) {
       decay: Math.random() * 0.0015 + 0.0005,
     };
   } else if (kind < 0.8) {
-    // static sparkle / star
     return {
       type: 'sparkle',
       x: Math.random() * W,
@@ -36,7 +33,6 @@ function makeParticle(W, H) {
       twinklePhase: Math.random() * Math.PI * 2,
     };
   } else {
-    // drifting ash
     return {
       type: 'ash',
       x: Math.random() * W,
@@ -52,25 +48,11 @@ function makeParticle(W, H) {
   }
 }
 
-/* ─── Main component ─────────────────────────────────────────────── */
 export function CinematicHeroBackground() {
   const canvasRef = useRef(null);
   const particlesRef = useRef([]);
   const frameRef = useRef(null);
   const timeRef = useRef(0);
-  const mouseRef = useRef({ x: 0.5, y: 0.5 });
-
-  // Parallax on mouse move
-  useEffect(() => {
-    const handler = (e) => {
-      mouseRef.current = {
-        x: e.clientX / window.innerWidth,
-        y: e.clientY / window.innerHeight,
-      };
-    };
-    window.addEventListener('mousemove', handler, { passive: true });
-    return () => window.removeEventListener('mousemove', handler);
-  }, []);
 
   const initParticles = useCallback((W, H) => {
     particlesRef.current = Array.from({ length: PARTICLE_COUNT }, () =>
@@ -84,7 +66,7 @@ export function CinematicHeroBackground() {
     const ctx = canvas.getContext('2d');
 
     const resize = () => {
-      canvas.width  = canvas.offsetWidth;
+      canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
       initParticles(canvas.width, canvas.height);
     };
@@ -102,7 +84,6 @@ export function CinematicHeroBackground() {
       ctx.clearRect(0, 0, W, H);
 
       particlesRef.current.forEach((p, i) => {
-        // Update
         p.x += p.vx;
         p.y += p.vy;
         p.life -= p.decay;
@@ -111,19 +92,16 @@ export function CinematicHeroBackground() {
           p.opacity = (0.4 + Math.sin(t * p.twinkleSpeed * 60 + p.twinklePhase) * 0.4) * p.life;
         }
 
-        // Reset when dead or out of bounds
         if (p.life <= 0 || p.y < -20 || p.x < -20 || p.x > W + 20) {
           particlesRef.current[i] = makeParticle(W, H);
           return;
         }
 
-        // Draw
         ctx.save();
         ctx.globalAlpha = Math.max(0, p.type === 'sparkle' ? p.opacity : p.opacity * p.life);
         ctx.fillStyle = p.color;
 
         if (p.type === 'ember') {
-          // Glowing ember
           const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2);
           grd.addColorStop(0, p.color);
           grd.addColorStop(1, 'transparent');
@@ -149,23 +127,35 @@ export function CinematicHeroBackground() {
     };
   }, [initParticles]);
 
-  // Mouse parallax CSS vars via inline style on container element
-  const mx = mouseRef.current.x;
-  const my = mouseRef.current.y;
-
   return (
     <div className="cinematic-hero-bg" aria-hidden="true">
-      {/* ── Layer 1: Deep space base ── */}
+      {/* Layer 1: Deep void base */}
       <div className="chb-base" />
 
-      {/* ── Layer 2: Main gate radial glow (timed pulse via CSS) ── */}
+      {/* Layer 2: Character image — fades into the atmosphere */}
+      <div className="chb-character-wrap">
+        <img
+          src="/Sumit_Solo.png"
+          alt=""
+          className="chb-character-img"
+          loading="eager"
+          draggable="false"
+        />
+        {/* Gradient masks to blend the image edges */}
+        <div className="chb-character-fade-left" />
+        <div className="chb-character-fade-right" />
+        <div className="chb-character-fade-top" />
+        <div className="chb-character-fade-bottom" />
+      </div>
+
+      {/* Layer 3: Gate mega-glow — sits behind/around the character */}
       <div className="chb-gate-glow" />
       <div className="chb-gate-glow chb-gate-glow--inner" />
 
-      {/* ── Layer 3: Horizontal aperture ring around gate ── */}
+      {/* Layer 4: Aperture ring */}
       <div className="chb-gate-ring" />
 
-      {/* ── Layer 4: Vertical light pillar beams ── */}
+      {/* Layer 5: Vertical light pillars */}
       <div className="chb-pillars">
         <div className="chb-pillar chb-pillar--1" />
         <div className="chb-pillar chb-pillar--2" />
@@ -174,26 +164,26 @@ export function CinematicHeroBackground() {
         <div className="chb-pillar chb-pillar--5" />
       </div>
 
-      {/* ── Layer 5: Ground energy burst (cone from bottom) ── */}
+      {/* Layer 6: Ground energy burst */}
       <div className="chb-ground-burst" />
 
-      {/* ── Layer 6: Volumetric mist / ground fog ── */}
+      {/* Layer 7: Volumetric mist */}
       <div className="chb-fog">
         <div className="chb-fog-layer chb-fog-layer--1" />
         <div className="chb-fog-layer chb-fog-layer--2" />
         <div className="chb-fog-layer chb-fog-layer--3" />
       </div>
 
-      {/* ── Layer 7: Particle canvas ── */}
+      {/* Layer 8: Particle canvas */}
       <canvas ref={canvasRef} className="chb-canvas" />
 
-      {/* ── Layer 8: Scan lines ── */}
+      {/* Layer 9: Scan lines */}
       <div className="chb-scanlines" />
 
-      {/* ── Layer 9: Vignette ── */}
+      {/* Layer 10: Vignette */}
       <div className="chb-vignette" />
 
-      {/* ── Layer 10: Top letter-box bar ── */}
+      {/* Layer 11: Letterbox */}
       <div className="chb-letterbox-top" />
       <div className="chb-letterbox-bottom" />
     </div>

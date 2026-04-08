@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
+// Audio
+import { AudioProvider } from './context/AudioContext';
+
 // Layout
 import { Navigation }    from './components/layout/Navigation';
 import { SystemCursor }  from './components/layout/SystemCursor';
@@ -38,22 +41,24 @@ function AnimatedRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
-      {/* Global decorative / interactive overlays */}
-      <SystemCursor />
-      <div className="scan-lines" aria-hidden="true" />
+    <AudioProvider>
+      <BrowserRouter>
+        {/* Global decorative / interactive overlays */}
+        <SystemCursor />
+        <div className="scan-lines" aria-hidden="true" />
 
-      {/* Left sidebar navigation */}
-      <Navigation />
+        {/* Left sidebar navigation */}
+        <Navigation />
 
-      {/* Main content — offset left by nav width */}
-      <main className="page-wrapper" id="main-content">
-        <AnimatedRoutes />
-      </main>
+        {/* Main content — offset left by nav width */}
+        <main className="page-wrapper" id="main-content">
+          <AnimatedRoutes />
+        </main>
 
-      {/* Global cookie banner */}
-      <CookieBanner />
-    </BrowserRouter>
+        {/* Global cookie banner */}
+        <CookieBanner />
+      </BrowserRouter>
+    </AudioProvider>
   );
 }
 

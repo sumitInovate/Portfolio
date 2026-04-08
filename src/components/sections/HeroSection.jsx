@@ -1,4 +1,5 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { CinematicHeroBackground } from '../three/CinematicHeroBackground';
 import { SystemPanel } from '../ui/SystemPanel';
 import { RankBadge } from '../ui/RankBadge';
@@ -6,9 +7,20 @@ import { GlowButton } from '../ui/GlowButton';
 import { SystemText } from '../ui/SystemText';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Star } from 'lucide-react';
+import { useAudio } from '../../context/AudioContext';
 
 export function HeroSection() {
   const navigate = useNavigate();
+  const { play } = useAudio();
+
+  // Auto-play music when the hero section becomes visible
+  // (after loading screen completes). Browser autoplay policy
+  // requires a prior user interaction — the loading screen click
+  // or the page load itself satisfies this on most browsers.
+  useEffect(() => {
+    const timer = setTimeout(() => play(), 1200);
+    return () => clearTimeout(timer);
+  }, [play]);
 
   const scrollToAbout = () => {
     document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });

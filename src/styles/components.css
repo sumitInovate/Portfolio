@@ -150,6 +150,13 @@
   box-shadow: 0 0 10px rgba(74, 158, 255, 0.3);
 }
 
+.nav-sound--playing {
+  border-color: var(--color-system-400);
+  color: var(--color-system-400);
+  box-shadow: 0 0 14px rgba(74, 158, 255, 0.45);
+  animation: pulseGlow 2s ease infinite;
+}
+
 /* Mobile nav */
 .mobile-nav-bar {
   display: none;
