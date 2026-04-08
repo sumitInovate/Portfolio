@@ -8,7 +8,7 @@ export function AudioProvider({ children }) {
   const [ready,   setReady]   = useState(false);
 
   useEffect(() => {
-    const audio = new Audio('/solo_leveling.mp3');
+    const audio = new Audio('/dark_aria.mp3');
     audio.loop    = true;
     audio.volume  = 0.35;
     audio.preload = 'auto';

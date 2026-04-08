@@ -234,14 +234,29 @@
 .system-panel {
   background: linear-gradient(
     135deg,
-    rgba(13, 21, 38, 0.92) 0%,
-    rgba(7, 12, 23, 0.96) 100%
+    rgba(8, 14, 28, 0.82) 0%,
+    rgba(5, 9, 19, 0.88) 100%
   );
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  box-shadow: var(--shadow-panel);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  /* ── Blurred, blended border ── */
+  /* No hard border — instead, layered box-shadows create a soft
+     glowing edge that bleeds into the cinematic background */
+  border: 1px solid transparent;
+  border-radius: 6px;
+  box-shadow:
+    /* Outermost atmospheric halo */
+    0 0 80px 20px  rgba(30,  80, 255, 0.07),
+    /* Mid diffuse glow ring */
+    0 0 30px  6px  rgba(74, 158, 255, 0.10),
+    /* Near border glow */
+    0 0  8px  2px  rgba(74, 158, 255, 0.18),
+    /* Crisp-ish inner edge (very subtle) */
+    0 0  0    1px  rgba(74, 158, 255, 0.14),
+    /* Inset rim light to separate glass from bg */
+    inset 0 0 0 1px rgba(74, 158, 255, 0.08),
+    /* Original depth shadow */
+    0 8px 32px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
   position: relative;
   padding: var(--space-6);
   animation: borderPulse 4s ease infinite;
@@ -271,7 +286,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--color-border);
+  /* Soft divider — gradient that fades to transparent on both ends */
+  border-bottom: none;
+  background-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(74, 158, 255, 0.25) 30%,
+    rgba(74, 158, 255, 0.25) 70%,
+    transparent 100%
+  );
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: bottom;
   padding-bottom: var(--space-3);
   margin-bottom: var(--space-6);
   font-family: var(--font-system);

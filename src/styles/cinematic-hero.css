@@ -21,19 +21,15 @@
       #030c1e 0%,
       #020818 30%,
       #010510 60%,
-      #000103 100%
-    );
+      #000103 100%);
 }
 
 /* ── Layer 2: Character image ───────────────────────────────────── */
 .chb-character-wrap {
-  position: absolute;
   /* Right half of the screen, bottom-anchored */
-  right: -2%;
-  bottom: 0;
-  width: 52%;
+  width: 75%;
   height: 100%;
-  max-width: 700px;
+  max-width: 1000px;
   pointer-events: none;
   z-index: 2;
 }
@@ -44,20 +40,15 @@
   right: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: bottom center;
+  object-fit: cover;
+  object-position: top;
   /* Desaturate slightly and cool the tones to match dungeon palette */
   filter: saturate(0.88) brightness(0.88) contrast(1.05) hue-rotate(-8deg);
   /* CSS mask: fade away on all edges so image blends into bg */
-  -webkit-mask-image:
-    linear-gradient(to left,   rgba(0,0,0,0.0) 0%,  rgba(0,0,0,0.6) 22%, rgba(0,0,0,1) 46%),
-    linear-gradient(to bottom, rgba(0,0,0,0.0) 0%,  rgba(0,0,0,1)   12%),
-    linear-gradient(to top,    rgba(0,0,0,0.0) 0%,  rgba(0,0,0,0.5)  8%, rgba(0,0,0,1) 18%);
-  -webkit-mask-composite: source-in;
   mask-image:
-    linear-gradient(to left,   rgba(0,0,0,0.0) 0%,  rgba(0,0,0,0.6) 22%, rgba(0,0,0,1) 46%),
-    linear-gradient(to bottom, rgba(0,0,0,0.0) 0%,  rgba(0,0,0,1)   12%),
-    linear-gradient(to top,    rgba(0,0,0,0.0) 0%,  rgba(0,0,0,0.5)  8%, rgba(0,0,0,1) 18%);
+    linear-gradient(to left, rgba(0, 0, 0, 0.0) 0%, rgba(0, 0, 0, 0.6) 42%, rgba(0, 0, 0, 1) 56%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.0) 0%, rgba(0, 0, 0, 1) 12%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.0) 0%, rgba(0, 0, 0, 0.5) 8%, rgba(0, 0, 0, 1) 18%);
   mask-composite: intersect;
 }
 
@@ -66,39 +57,39 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(to right,
-    rgba(2, 8, 24, 0.98) 0%,
-    rgba(2, 8, 24, 0.55) 30%,
-    transparent           65%
-  );
+      rgba(2, 8, 24, 0.98) 0%,
+      rgba(2, 8, 24, 0.55) 30%,
+      transparent 65%);
 }
 
 .chb-character-fade-top {
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 35%;
   background: linear-gradient(to bottom,
-    rgba(2, 8, 24, 0.95) 0%,
-    transparent           100%
-  );
+      rgba(2, 8, 24, 0.95) 0%,
+      transparent 100%);
 }
 
 .chb-character-fade-bottom {
   position: absolute;
-  bottom: 0; left: 0; right: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   height: 28%;
   background: linear-gradient(to top,
-    rgba(1, 3, 12, 0.98) 0%,
-    transparent           100%
-  );
+      rgba(1, 3, 12, 0.98) 0%,
+      transparent 100%);
 }
 
 .chb-character-fade-right {
   position: absolute;
   inset: 0;
   background: linear-gradient(to left,
-    rgba(1, 3, 12, 0.70) 0%,
-    transparent 40%
-  );
+      rgba(1, 3, 12, 0.70) 0%,
+      transparent 40%);
 }
 
 /* Responsive: on mobile, reduce size and reposition */
@@ -124,13 +115,12 @@
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 50%,
-      rgba(80,  0, 220, 0.28) 0%,
-      rgba(20,  0, 180, 0.22) 18%,
-      rgba( 0, 60, 220, 0.18) 35%,
-      rgba( 0, 80, 255, 0.10) 55%,
-      rgba( 0, 20, 100, 0.05) 75%,
-      transparent             100%
-    );
+      rgba(80, 0, 220, 0.28) 0%,
+      rgba(20, 0, 180, 0.22) 18%,
+      rgba(0, 60, 220, 0.18) 35%,
+      rgba(0, 80, 255, 0.10) 55%,
+      rgba(0, 20, 100, 0.05) 75%,
+      transparent 100%);
   animation: gateGlowPulse 4s ease-in-out infinite;
   pointer-events: none;
 }
@@ -142,17 +132,25 @@
   max-height: 460px;
   background:
     radial-gradient(circle at 50% 50%,
-      rgba(140,  0, 255, 0.45) 0%,
-      rgba( 60,  0, 200, 0.35) 20%,
-      rgba( 20, 40, 255, 0.22) 45%,
-      transparent              80%
-    );
+      rgba(140, 0, 255, 0.45) 0%,
+      rgba(60, 0, 200, 0.35) 20%,
+      rgba(20, 40, 255, 0.22) 45%,
+      transparent 80%);
   animation: gateGlowPulse 3s ease-in-out infinite reverse;
 }
 
 @keyframes gateGlowPulse {
-  0%, 100% { opacity: 0.75; transform: translate(-50%, -48%) scale(1);    }
-  50%       { opacity: 1.00; transform: translate(-50%, -48%) scale(1.05); }
+
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: translate(-50%, -48%) scale(1);
+  }
+
+  50% {
+    opacity: 1.00;
+    transform: translate(-50%, -48%) scale(1.05);
+  }
 }
 
 /* ── Gate aperture ring ─────────────────────────────────────────── */
@@ -168,16 +166,25 @@
   border-radius: 50%;
   border: 1px solid rgba(74, 100, 255, 0.20);
   box-shadow:
-    0 0  40px 6px  rgba( 80, 60, 255, 0.25),
-    0 0  80px 20px rgba( 30, 60, 255, 0.12),
+    0 0 40px 6px rgba(80, 60, 255, 0.25),
+    0 0 80px 20px rgba(30, 60, 255, 0.12),
     inset 0 0 40px rgba(100, 80, 255, 0.15);
   animation: ringPulse 5s ease-in-out infinite;
   pointer-events: none;
 }
 
 @keyframes ringPulse {
-  0%, 100% { opacity: 0.6; transform: translate(-50%, -48%) scale(1);     }
-  50%       { opacity: 1.0; transform: translate(-50%, -48%) scale(1.025); }
+
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: translate(-50%, -48%) scale(1);
+  }
+
+  50% {
+    opacity: 1.0;
+    transform: translate(-50%, -48%) scale(1.025);
+  }
 }
 
 /* ── Layer 4: Vertical light pillars ─────────────────────────────── */
@@ -199,10 +206,9 @@
 .chb-pillar--1 {
   left: 18%;
   background: linear-gradient(to top,
-    rgba(74, 158, 255, 0.70) 0%,
-    rgba(74, 158, 255, 0.25) 55%,
-    transparent 100%
-  );
+      rgba(74, 158, 255, 0.70) 0%,
+      rgba(74, 158, 255, 0.25) 55%,
+      transparent 100%);
   box-shadow: 0 0 18px 4px rgba(74, 158, 255, 0.35);
   animation: pillarFlicker 6.2s ease-in-out infinite;
   animation-delay: 0s;
@@ -213,10 +219,9 @@
   width: 2px;
   height: 55vh;
   background: linear-gradient(to top,
-    rgba(123, 79, 255, 0.60) 0%,
-    rgba(123, 79, 255, 0.20) 60%,
-    transparent 100%
-  );
+      rgba(123, 79, 255, 0.60) 0%,
+      rgba(123, 79, 255, 0.20) 60%,
+      transparent 100%);
   box-shadow: 0 0 14px 3px rgba(123, 79, 255, 0.28);
   animation: pillarFlicker 8.1s ease-in-out infinite;
   animation-delay: 1.3s;
@@ -227,11 +232,10 @@
   width: 5px;
   height: 90vh;
   background: linear-gradient(to top,
-    rgba(100, 60, 255, 0.85) 0%,
-    rgba(60, 120, 255, 0.45) 40%,
-    rgba(50, 100, 255, 0.15) 75%,
-    transparent 100%
-  );
+      rgba(100, 60, 255, 0.85) 0%,
+      rgba(60, 120, 255, 0.45) 40%,
+      rgba(50, 100, 255, 0.15) 75%,
+      transparent 100%);
   box-shadow: 0 0 30px 8px rgba(80, 60, 255, 0.45);
   animation: pillarFlicker 4.8s ease-in-out infinite;
   animation-delay: 0.4s;
@@ -242,10 +246,9 @@
   width: 2px;
   height: 60vh;
   background: linear-gradient(to top,
-    rgba(123, 79, 255, 0.55) 0%,
-    rgba(100, 120, 255, 0.18) 65%,
-    transparent 100%
-  );
+      rgba(123, 79, 255, 0.55) 0%,
+      rgba(100, 120, 255, 0.18) 65%,
+      transparent 100%);
   box-shadow: 0 0 12px 3px rgba(100, 80, 255, 0.25);
   animation: pillarFlicker 7.4s ease-in-out infinite;
   animation-delay: 2.1s;
@@ -255,22 +258,38 @@
   left: 82%;
   height: 50vh;
   background: linear-gradient(to top,
-    rgba(74, 158, 255, 0.50) 0%,
-    rgba(74, 158, 255, 0.15) 60%,
-    transparent 100%
-  );
+      rgba(74, 158, 255, 0.50) 0%,
+      rgba(74, 158, 255, 0.15) 60%,
+      transparent 100%);
   box-shadow: 0 0 14px 3px rgba(74, 158, 255, 0.22);
   animation: pillarFlicker 9.0s ease-in-out infinite;
   animation-delay: 0.9s;
 }
 
 @keyframes pillarFlicker {
-  0%   { opacity: 0.50; }
-  20%  { opacity: 0.85; }
-  35%  { opacity: 0.60; }
-  55%  { opacity: 1.00; }
-  75%  { opacity: 0.70; }
-  100% { opacity: 0.50; }
+  0% {
+    opacity: 0.50;
+  }
+
+  20% {
+    opacity: 0.85;
+  }
+
+  35% {
+    opacity: 0.60;
+  }
+
+  55% {
+    opacity: 1.00;
+  }
+
+  75% {
+    opacity: 0.70;
+  }
+
+  100% {
+    opacity: 0.50;
+  }
 }
 
 /* ── Layer 5: Ground energy burst (cone from bottom-center) ──────── */
@@ -286,15 +305,21 @@
       rgba(60, 20, 200, 0.50) 0%,
       rgba(30, 60, 255, 0.30) 20%,
       rgba(20, 40, 200, 0.15) 45%,
-      transparent 75%
-    );
+      transparent 75%);
   pointer-events: none;
   animation: burstPulse 3.5s ease-in-out infinite;
 }
 
 @keyframes burstPulse {
-  0%, 100% { opacity: 0.7; }
-  50%       { opacity: 1.0; }
+
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 1.0;
+  }
 }
 
 /* ── Layer 6: Volumetric ground fog / mist ───────────────────────── */
@@ -321,8 +346,7 @@
     radial-gradient(ellipse 100% 100% at 50% 100%,
       rgba(5, 15, 50, 0.90) 0%,
       rgba(3, 8, 30, 0.60) 45%,
-      transparent 80%
-    );
+      transparent 80%);
   animation: fogDrift1 18s ease-in-out infinite alternate;
 }
 
@@ -332,8 +356,7 @@
     radial-gradient(ellipse 120% 80% at 50% 100%,
       rgba(3, 8, 25, 0.70) 0%,
       rgba(2, 5, 20, 0.40) 55%,
-      transparent 85%
-    );
+      transparent 85%);
   animation: fogDrift2 24s ease-in-out infinite alternate;
   animation-delay: -5s;
 }
@@ -344,19 +367,28 @@
     linear-gradient(to top,
       rgba(10, 20, 60, 0.85) 0%,
       rgba(5, 10, 40, 0.50) 50%,
-      transparent 100%
-    );
+      transparent 100%);
   animation: fogDrift1 12s ease-in-out infinite alternate-reverse;
 }
 
 @keyframes fogDrift1 {
-  from { transform: translateX(-3%) scaleY(1);    }
-  to   { transform: translateX( 3%) scaleY(1.05); }
+  from {
+    transform: translateX(-3%) scaleY(1);
+  }
+
+  to {
+    transform: translateX(3%) scaleY(1.05);
+  }
 }
 
 @keyframes fogDrift2 {
-  from { transform: translateX( 5%) scaleY(0.97); }
-  to   { transform: translateX(-5%) scaleY(1.08); }
+  from {
+    transform: translateX(5%) scaleY(0.97);
+  }
+
+  to {
+    transform: translateX(-5%) scaleY(1.08);
+  }
 }
 
 /* ── Layer 7: Canvas ─────────────────────────────────────────────── */
@@ -371,13 +403,11 @@
 .chb-scanlines {
   position: absolute;
   inset: 0;
-  background-image: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 3px,
-    rgba(0, 20, 80, 0.025) 3px,
-    rgba(0, 20, 80, 0.025) 6px
-  );
+  background-image: repeating-linear-gradient(0deg,
+      transparent,
+      transparent 3px,
+      rgba(0, 20, 80, 0.025) 3px,
+      rgba(0, 20, 80, 0.025) 6px);
   pointer-events: none;
 }
 
@@ -389,24 +419,27 @@
     radial-gradient(ellipse 100% 100% at 50% 50%,
       transparent 40%,
       rgba(0, 0, 3, 0.55) 75%,
-      rgba(0, 0, 5, 0.90) 100%
-    );
+      rgba(0, 0, 5, 0.90) 100%);
   pointer-events: none;
 }
 
 /* ── Layer 10: Cinematic letter-box bars ─────────────────────────── */
 .chb-letterbox-top {
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 44px;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.85) 0%, transparent 100%);
   pointer-events: none;
 }
 
 .chb-letterbox-bottom {
   position: absolute;
-  bottom: 0; left: 0; right: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   height: 80px;
-  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, transparent 100%);
   pointer-events: none;
 }
