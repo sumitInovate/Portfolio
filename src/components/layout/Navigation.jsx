@@ -6,11 +6,15 @@ import { useActiveSection } from '../../hooks/useActiveSection';
 
 // sectionId must match the `id` attribute on each <section> element
 const navItems = [
-  { label: 'HOME',    sectionId: 'hero'     },
-  { label: 'ABOUT',   sectionId: 'about'    },
-  { label: 'WORKS',   sectionId: 'projects' },
-  { label: 'CONTACT', sectionId: 'contact'  },
+  { label: 'HOME',           sectionId: 'hero'           },
+  { label: 'ABOUT',          sectionId: 'about'          },
+  { label: 'SKILLS',         sectionId: 'skills'         },
+  { label: 'EXPERIENCE',     sectionId: 'experience'     },
+  { label: 'PROJECTS',       sectionId: 'projects'       },
+  { label: 'CERTS',          sectionId: 'certifications' },
+  { label: 'CONTACT',        sectionId: 'contact'        },
 ];
+
 
 /* Animated equaliser bars — shown when music is playing */
 function EqBars() {
