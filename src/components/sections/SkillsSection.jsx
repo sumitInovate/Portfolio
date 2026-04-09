@@ -2,42 +2,120 @@ import { motion } from 'framer-motion';
 import { RevealOnScroll } from '../ui/RevealOnScroll';
 import { StatBar } from '../ui/StatBar';
 
-const skills = [
+const skillCategories = [
   {
-    name: 'C# / .NET Core',
-    alias: '"Shadow Extraction" — Core Magic',
-    value: 90,
-    desc: 'Built 10+ production REST APIs with ASP.NET Web API, Entity Framework Core, and LINQ at Ingram Micro.',
+    category: 'BACKEND',
+    icon: '⚔',
+    skills: [
+      {
+        name: 'C# / .NET Core',
+        alias: 'SHADOW EXTRACTION',
+        value: 95,
+        desc: 'Built 10+ production REST APIs with ASP.NET Web API, Entity Framework Core, and LINQ at Ingram Micro.',
+      },
+      {
+        name: 'ASP.NET Web API',
+        alias: "ARCHITECT'S BLADE",
+        value: 92,
+        desc: 'Designed and shipped enterprise-grade Web APIs with clean architecture, middleware pipelines, and global error handling.',
+      },
+      {
+        name: 'Entity Framework Core',
+        alias: 'MEMORY READING',
+        value: 88,
+        desc: 'Managed complex domain models, migrations, and query optimizations using EF Core with SQL Server.',
+      },
+      {
+        name: 'SQL Server / T-SQL',
+        alias: 'DATA EXTRACTION',
+        value: 88,
+        desc: 'Designed relational schemas, wrote complex stored procedures & T-SQL, optimised queries for 35%+ perf gain.',
+      },
+    ],
   },
   {
-    name: 'React.js',
-    alias: '"Domain Expansion" — Frontend Mastery',
-    value: 85,
-    desc: 'Crafted enterprise frontends with React 18, hooks, context, and state management patterns.',
+    category: 'FRONTEND',
+    icon: '👁',
+    skills: [
+      {
+        name: 'React.js',
+        alias: 'DOMAIN EXPANSION',
+        value: 90,
+        desc: 'Crafted enterprise frontends with React 18, hooks, context, and state management patterns.',
+      },
+      {
+        name: 'JavaScript / ES2022+',
+        alias: 'SPEED READING',
+        value: 88,
+        desc: 'Deep mastery of modern JS including async/await, destructuring, optional chaining, and module systems.',
+      },
+      {
+        name: 'TypeScript',
+        alias: 'IRON MIND',
+        value: 80,
+        desc: 'Strongly typed React & Node.js projects with interfaces, generics, and strict null checks.',
+      },
+      {
+        name: 'HTML5 / CSS3',
+        alias: 'FOUNDATION MAGIC',
+        value: 85,
+        desc: 'Built responsive, accessible UIs with semantic HTML5, Flexbox, Grid, and custom CSS animations.',
+      },
+    ],
   },
   {
-    name: 'SQL Server / EF Core',
-    alias: '"Memory Reading" — Data Retrieval',
-    value: 82,
-    desc: 'Designed relational schemas, wrote complex LINQ & raw SQL, optimized queries for 35%+ perf gain.',
+    category: 'CLOUD & DEVOPS',
+    icon: '☁',
+    skills: [
+      {
+        name: 'GCP (ACE Certified 2024)',
+        alias: "RULER'S AUTHORITY",
+        value: 88,
+        desc: 'GCP ACE certified. Deployed multi-region services across APAC & EMEA using GKE, Cloud Run, and Cloud SQL.',
+      },
+      {
+        name: 'Azure',
+        alias: 'SKY DOMAIN',
+        value: 78,
+        desc: 'Provisioned Azure App Services, Storage, and Azure AD for enterprise deployments.',
+      },
+      {
+        name: 'Docker / CI-CD',
+        alias: 'GATE TRAVERSAL',
+        value: 82,
+        desc: 'Containerised microservices with Docker Compose and automated pipelines via GitHub Actions & Azure DevOps.',
+      },
+      {
+        name: 'Dynamics 365 / Power Automate',
+        alias: "ARCHITECT'S EYE",
+        value: 80,
+        desc: 'Extended D365 modules for 1,000+ global users, built Power Automate flows for onboarding pipelines.',
+      },
+    ],
   },
   {
-    name: 'GCP / Azure / Docker',
-    alias: '"Ruler\'s Authority" — Cloud Control',
-    value: 78,
-    desc: 'GCP ACE certified. Deployed multi-region services across APAC & EMEA. CI/CD with GitHub Actions.',
-  },
-  {
-    name: 'JWT / OAuth 2.0',
-    alias: '"Iron Body" — Security Fortification',
-    value: 80,
-    desc: 'Implemented enterprise auth flows, OWASP-hardened APIs, and multi-org SSO integrations.',
-  },
-  {
-    name: 'Dynamics 365 / Power Automate',
-    alias: '"Architect\'s Eye" — CRM Vision',
-    value: 75,
-    desc: 'Extended D365 modules for 1,000+ global users, built Power Automate flows for onboarding pipelines.',
+    category: 'SECURITY',
+    icon: '🛡',
+    skills: [
+      {
+        name: 'JWT / OAuth 2.0',
+        alias: 'IRON BODY',
+        value: 88,
+        desc: 'Implemented enterprise auth flows, OWASP-hardened APIs, and multi-org SSO integrations.',
+      },
+      {
+        name: 'OWASP Practices',
+        alias: 'BARRIER OF THE ABSOLUTE',
+        value: 85,
+        desc: 'Applied OWASP Top 10 mitigations: SQL injection prevention, XSS sanitisation, rate limiting, and secure headers.',
+      },
+      {
+        name: 'HTTPS / TLS',
+        alias: 'SEAL OF PROTECTION',
+        value: 88,
+        desc: 'Enforced HTTPS everywhere, configured TLS termination, certificate rotation, and HSTS policies.',
+      },
+    ],
   },
 ];
 
@@ -51,7 +129,12 @@ const cardVariants = {
 
 const containerVariants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.09, delayChildren: 0.15 } },
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+};
+
+const categoryVariants = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
 };
 
 export function SkillsSection() {
@@ -65,53 +148,50 @@ export function SkillsSection() {
           </p>
         </RevealOnScroll>
 
-        <motion.div
-          className="skill-grid"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-60px' }}
-        >
-          {skills.map((skill) => (
-            <motion.div key={skill.name} variants={cardVariants} className="skill-card">
-              <div className="skill-card-inner">
-                {/* Front */}
-                <div className="skill-card-front">
-                  <p className="skill-alias">{skill.alias}</p>
-                  <h3 className="skill-name">{skill.name}</h3>
-                  <StatBar label="PROFICIENCY" value={skill.value} />
-                </div>
-                {/* Back */}
-                <div className="skill-card-back">
-                  <p className="skill-back-title">{skill.name}</p>
-                  <p className="skill-back-desc">{skill.desc}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+        {skillCategories.map((cat, catIndex) => (
+          <motion.div
+            key={cat.category}
+            variants={categoryVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: '-40px' }}
+            style={{ marginBottom: 'var(--space-12)' }}
+          >
+            {/* Category Header */}
+            <div className="skill-category-header">
+              <span className="skill-category-icon">{cat.icon}</span>
+              <h3 className="skill-category-title">{cat.category}</h3>
+            </div>
 
-        {/* Additional tech tags */}
-        <RevealOnScroll delay={0.3} y={20}>
-          <div style={{ marginTop: 'var(--space-10)', display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)' }}>
-            {['TypeScript', 'Node.js', 'Redis', 'SignalR', 'Hangfire', 'Swagger / OpenAPI', 'Git', 'Postman', 'Azure DevOps', 'Agile / Scrum'].map((tag) => (
-              <span
-                key={tag}
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: 'var(--text-xs)',
-                  color: 'var(--color-text-muted)',
-                  border: '1px solid var(--color-border)',
-                  padding: '4px 12px',
-                  borderRadius: '2px',
-                  letterSpacing: '1px',
-                }}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </RevealOnScroll>
+            {/* Skill Cards Grid */}
+            <motion.div
+              className="skill-grid"
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: '-60px' }}
+            >
+              {cat.skills.map((skill) => (
+                <motion.div key={skill.name} variants={cardVariants} className="skill-card">
+                  <div className="skill-card-inner">
+                    {/* Front */}
+                    <div className="skill-card-front">
+                      <p className="skill-alias">SKILL · {skill.alias}</p>
+                      <h3 className="skill-name">{skill.name}</h3>
+                      <StatBar label="Proficiency" value={skill.value} />
+                      <p className="skill-reveal-hint">Click to reveal</p>
+                    </div>
+                    {/* Back */}
+                    <div className="skill-card-back">
+                      <p className="skill-back-title">{skill.name}</p>
+                      <p className="skill-back-desc">{skill.desc}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        ))}
       </div>
     </section>
   );

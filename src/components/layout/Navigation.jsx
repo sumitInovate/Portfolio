@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAudio } from '../../context/AudioContext';
+import { useActiveSection } from '../../hooks/useActiveSection';
 
+// sectionId must match the `id` attribute on each <section> element
 const navItems = [
-  { path: '/', label: 'HOME' },
-  { path: '/about', label: 'ABOUT' },
-  { path: '/works', label: 'WORKS' },
-  { path: '/contact', label: 'CONTACT' },
+  { label: 'HOME',    sectionId: 'hero'     },
+  { label: 'ABOUT',   sectionId: 'about'    },
+  { label: 'WORKS',   sectionId: 'projects' },
+  { label: 'CONTACT', sectionId: 'contact'  },
 ];
 
 /* Animated equaliser bars — shown when music is playing */
@@ -40,6 +42,7 @@ function EqBars() {
 
 export function Navigation() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const active = useActiveSection(navItems);
   const { playing, toggle } = useAudio();
 
   return (
@@ -52,17 +55,23 @@ export function Navigation() {
 
         <ul className="nav-items" role="menubar">
           {navItems.map((item) => (
-            <li key={item.path} className="nav-item" role="none">
-              <NavLink
-                to={item.path}
-                end={item.path === '/'}
-                className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+            <li key={item.sectionId} className="nav-item" role="none">
+              <a
+                href={`#${item.sectionId}`}
+                className={`nav-link${active === item.sectionId ? ' active' : ''}`}
                 role="menuitem"
                 aria-label={item.label}
+                aria-current={active === item.sectionId ? 'page' : undefined}
+                onClick={(e) => {
+                  e.preventDefault();
+                  document
+                    .getElementById(item.sectionId)
+                    ?.scrollIntoView({ behavior: 'smooth' });
+                }}
               >
                 <span className="nav-dot" />
                 <span className="nav-label" aria-hidden="true">{item.label}</span>
-              </NavLink>
+              </a>
             </li>
           ))}
         </ul>
@@ -122,21 +131,24 @@ export function Navigation() {
             </button>
             {navItems.map((item, i) => (
               <motion.div
-                key={item.path}
+                key={item.sectionId}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08 }}
               >
-                <NavLink
-                  to={item.path}
-                  end={item.path === '/'}
-                  className={({ isActive }) =>
-                    `m-nav-link${isActive ? ' active' : ''}`
-                  }
-                  onClick={() => setMobileOpen(false)}
+                <a
+                  href={`#${item.sectionId}`}
+                  className={`m-nav-link${active === item.sectionId ? ' active' : ''}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document
+                      .getElementById(item.sectionId)
+                      ?.scrollIntoView({ behavior: 'smooth' });
+                    setMobileOpen(false);
+                  }}
                 >
                   {item.label}
-                </NavLink>
+                </a>
               </motion.div>
             ))}
           </motion.div>

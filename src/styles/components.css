@@ -547,6 +547,58 @@
   line-height: 1.5;
 }
 
+/* ── Skill Category Header ── */
+.skill-category-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid rgba(74, 158, 255, 0.18);
+  position: relative;
+}
+
+.skill-category-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 60px;
+  height: 1px;
+  background: var(--color-system-400);
+  box-shadow: 0 0 8px rgba(74, 158, 255, 0.8);
+}
+
+.skill-category-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.skill-category-title {
+  font-family: var(--font-system);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--color-system-400);
+  text-shadow: 0 0 12px rgba(74, 158, 255, 0.4);
+}
+
+/* ── Reveal hint inside card ── */
+.skill-reveal-hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-muted);
+  letter-spacing: 1px;
+  margin-top: auto;
+  align-self: flex-end;
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+
+.skill-card:hover .skill-reveal-hint {
+  opacity: 0;
+}
+
 /* ═══════════════════════════════════════════════
    EXPERIENCE / QUEST LOG
 ═══════════════════════════════════════════════ */
