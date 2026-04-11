@@ -53,8 +53,8 @@ export function Navigation() {
     <>
       {/* ── Desktop Sidebar ── */}
       <nav className="sidebar-nav" aria-label="Site navigation">
-        <Link to="/" className="nav-logo" aria-label="Home">
-          SU
+        <Link to="/" className="nav-logo" aria-label="CodeAether Home">
+          CA
         </Link>
 
         <ul className="nav-items" role="menubar">
@@ -94,7 +94,7 @@ export function Navigation() {
 
       {/* ── Mobile Top Bar ── */}
       <div className="mobile-nav-bar" aria-label="Mobile navigation">
-        <Link to="/" className="nav-logo" aria-label="Home">SU</Link>
+        <Link to="/" className="nav-logo" aria-label="CodeAether Home">CA</Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button
             className={`nav-sound${playing ? ' nav-sound--playing' : ''}`}

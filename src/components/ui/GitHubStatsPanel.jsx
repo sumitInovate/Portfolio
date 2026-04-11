@@ -1,50 +1,29 @@
-import { motion } from 'framer-motion';
+import { motion }  from 'framer-motion';
+import { useUser } from '../../context/UserContext';
 
-// Deterministic contribution heatmap — 52 weeks × 7 days
-// Values: 0=none, 1=low, 2=mid, 3=high, 4=peak
-function generateHeatmap() {
-  const seed = [
-    0,0,1,0,2,0,0, 0,1,0,2,3,1,0, 0,0,2,1,0,2,0, 1,2,3,2,1,0,0,
-    0,2,1,3,2,0,1, 1,0,2,0,3,2,0, 0,1,0,2,1,0,2, 2,3,1,0,2,1,0,
-    0,0,3,2,1,2,0, 1,2,0,3,2,1,0, 0,1,2,0,1,3,2, 3,2,1,0,2,1,0,
-    1,0,2,1,3,0,2, 0,2,1,0,2,3,1, 1,3,2,0,1,2,0, 0,1,3,2,1,0,2,
-    2,0,1,3,0,2,1, 0,2,0,3,1,2,0, 1,0,2,1,3,0,2, 0,3,2,1,0,2,1,
-    1,2,0,3,1,0,2, 2,1,3,0,2,1,0, 0,2,1,0,3,2,1, 1,0,2,3,0,1,2,
-    0,1,2,0,3,1,0, 2,3,0,1,2,0,1, 1,2,3,0,1,2,0, 0,1,0,2,3,1,2,
-    3,0,2,1,0,2,3, 1,2,0,3,2,1,0, 0,2,3,1,0,2,1, 2,1,0,3,2,0,1,
-    0,1,2,3,0,1,2, 1,0,3,2,1,0,2, 2,3,0,1,2,0,1, 0,2,1,3,0,2,1,
-    1,0,2,0,3,1,2, 3,1,2,0,1,3,0, 2,0,1,2,3,0,1, 1,2,0,3,1,2,0,
-    0,3,2,1,2,0,1, 2,1,3,0,2,1,0, 1,2,0,3,1,0,2, 0,1,2,0,3,1,2,
-    3,2,0,1,2,3,0, 1,0,2,3,1,0,2, 2,3,1,0,2,1,3, 0,2,1,3,0,2,1,
-    2,1,0,3,2,1,0, 3,2,1,0,3,2,1,
-  ];
-  // Fill remaining with 0s  
-  while (seed.length < 364) seed.push(0);
-  // Build 52×7 grid
+const MONTHS     = ['Apr', 'May', 'Jun', 'Jul', 'Sep', 'Nov'];
+const MONTH_COLS = [0, 4, 9, 13, 22, 34];
+
+function buildHeatmap(seed = []) {
+  const padded = [...seed];
+  while (padded.length < 364) padded.push(0);
   const grid = [];
   for (let w = 0; w < 52; w++) {
     const week = [];
     for (let d = 0; d < 7; d++) {
-      week.push(seed[w * 7 + d] || 0);
+      week.push(padded[w * 7 + d] || 0);
     }
     grid.push(week);
   }
   return grid;
 }
 
-const HEATMAP = generateHeatmap();
-const MONTHS = ['Apr', 'May', 'Jun', 'Jul', 'Sep', 'Nov'];
-// Which column (week) each month label sits at
-const MONTH_COLS = [0, 4, 9, 13, 22, 34];
-
-const STATS = [
-  { label: 'Global Developer Rating:', value: 'TOP 1%', highlight: true },
-  { label: 'Commits (Last 12 Mos):', value: '450+', highlight: true },
-  { label: 'Open Source Contributions:', value: '15+', highlight: true },
-  { label: 'Languages:', value: 'C#, JS, TS', highlight: true },
-];
-
 export function GitHubStatsPanel() {
+  const { userData } = useUser();
+  const gh     = userData?.github ?? {};
+  const stats  = gh.stats         ?? [];
+  const heatmap = buildHeatmap(gh.heatmapSeed ?? []);
+
   return (
     <motion.div
       className="gh-stats-panel glass-panel"
@@ -58,7 +37,6 @@ export function GitHubStatsPanel() {
 
       {/* Header row */}
       <div className="gh-header">
-        {/* GitHub icon SVG */}
         <svg className="gh-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path
             fill="currentColor"
@@ -70,7 +48,7 @@ export function GitHubStatsPanel() {
 
       {/* Stats list */}
       <ul className="gh-stat-list" aria-label="GitHub developer statistics">
-        {STATS.map(({ label, value }) => (
+        {stats.map(({ label, value }) => (
           <li key={label} className="gh-stat-row">
             <span className="gh-stat-label">{label}</span>
             <span className="gh-stat-value">{value}</span>
@@ -94,7 +72,7 @@ export function GitHubStatsPanel() {
         </div>
         {/* Grid */}
         <div className="gh-heatmap-grid" role="img" aria-label="Contribution activity grid">
-          {HEATMAP.map((week, wi) =>
+          {heatmap.map((week, wi) =>
             week.map((level, di) => (
               <div
                 key={`${wi}-${di}`}

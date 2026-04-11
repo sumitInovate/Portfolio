@@ -1,123 +1,7 @@
-import { motion } from 'framer-motion';
+import { motion }        from 'framer-motion';
 import { RevealOnScroll } from '../ui/RevealOnScroll';
-import { StatBar } from '../ui/StatBar';
-
-const skillCategories = [
-  {
-    category: 'BACKEND',
-    icon: '⚔',
-    skills: [
-      {
-        name: 'C# / .NET Core',
-        alias: 'SHADOW EXTRACTION',
-        value: 95,
-        desc: 'Built 10+ production REST APIs with ASP.NET Web API, Entity Framework Core, and LINQ at Ingram Micro.',
-      },
-      {
-        name: 'ASP.NET Web API',
-        alias: "ARCHITECT'S BLADE",
-        value: 92,
-        desc: 'Designed and shipped enterprise-grade Web APIs with clean architecture, middleware pipelines, and global error handling.',
-      },
-      {
-        name: 'Entity Framework Core',
-        alias: 'MEMORY READING',
-        value: 88,
-        desc: 'Managed complex domain models, migrations, and query optimizations using EF Core with SQL Server.',
-      },
-      {
-        name: 'SQL Server / T-SQL',
-        alias: 'DATA EXTRACTION',
-        value: 88,
-        desc: 'Designed relational schemas, wrote complex stored procedures & T-SQL, optimised queries for 35%+ perf gain.',
-      },
-    ],
-  },
-  {
-    category: 'FRONTEND',
-    icon: '👁',
-    skills: [
-      {
-        name: 'React.js',
-        alias: 'DOMAIN EXPANSION',
-        value: 90,
-        desc: 'Crafted enterprise frontends with React 18, hooks, context, and state management patterns.',
-      },
-      {
-        name: 'JavaScript / ES2022+',
-        alias: 'SPEED READING',
-        value: 88,
-        desc: 'Deep mastery of modern JS including async/await, destructuring, optional chaining, and module systems.',
-      },
-      {
-        name: 'TypeScript',
-        alias: 'IRON MIND',
-        value: 80,
-        desc: 'Strongly typed React & Node.js projects with interfaces, generics, and strict null checks.',
-      },
-      {
-        name: 'HTML5 / CSS3',
-        alias: 'FOUNDATION MAGIC',
-        value: 85,
-        desc: 'Built responsive, accessible UIs with semantic HTML5, Flexbox, Grid, and custom CSS animations.',
-      },
-    ],
-  },
-  {
-    category: 'CLOUD & DEVOPS',
-    icon: '☁',
-    skills: [
-      {
-        name: 'GCP (ACE Certified 2024)',
-        alias: "RULER'S AUTHORITY",
-        value: 88,
-        desc: 'GCP ACE certified. Deployed multi-region services across APAC & EMEA using GKE, Cloud Run, and Cloud SQL.',
-      },
-      {
-        name: 'Azure',
-        alias: 'SKY DOMAIN',
-        value: 78,
-        desc: 'Provisioned Azure App Services, Storage, and Azure AD for enterprise deployments.',
-      },
-      {
-        name: 'Docker / CI-CD',
-        alias: 'GATE TRAVERSAL',
-        value: 82,
-        desc: 'Containerised microservices with Docker Compose and automated pipelines via GitHub Actions & Azure DevOps.',
-      },
-      {
-        name: 'Dynamics 365 / Power Automate',
-        alias: "ARCHITECT'S EYE",
-        value: 80,
-        desc: 'Extended D365 modules for 1,000+ global users, built Power Automate flows for onboarding pipelines.',
-      },
-    ],
-  },
-  {
-    category: 'SECURITY',
-    icon: '🛡',
-    skills: [
-      {
-        name: 'JWT / OAuth 2.0',
-        alias: 'IRON BODY',
-        value: 88,
-        desc: 'Implemented enterprise auth flows, OWASP-hardened APIs, and multi-org SSO integrations.',
-      },
-      {
-        name: 'OWASP Practices',
-        alias: 'BARRIER OF THE ABSOLUTE',
-        value: 85,
-        desc: 'Applied OWASP Top 10 mitigations: SQL injection prevention, XSS sanitisation, rate limiting, and secure headers.',
-      },
-      {
-        name: 'HTTPS / TLS',
-        alias: 'SEAL OF PROTECTION',
-        value: 88,
-        desc: 'Enforced HTTPS everywhere, configured TLS termination, certificate rotation, and HSTS policies.',
-      },
-    ],
-  },
-];
+import { StatBar }        from '../ui/StatBar';
+import { useUser }        from '../../context/UserContext';
 
 const cardVariants = {
   hidden: { opacity: 0, scale: 0.87, y: 20 },
@@ -138,6 +22,9 @@ const categoryVariants = {
 };
 
 export function SkillsSection() {
+  const { userData } = useUser();
+  const skillCategories = userData?.skills ?? [];
+
   return (
     <section id="skills" className="section" style={{ background: 'rgba(8, 15, 30, 0.95)' }}>
       <div className="container">
@@ -148,7 +35,7 @@ export function SkillsSection() {
           </p>
         </RevealOnScroll>
 
-        {skillCategories.map((cat, catIndex) => (
+        {skillCategories.map((cat) => (
           <motion.div
             key={cat.category}
             variants={categoryVariants}
