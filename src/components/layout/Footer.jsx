@@ -1,13 +1,13 @@
-import { Link }              from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { GitFork, Link2, Mail } from 'lucide-react';
-import { useUser }            from '../../context/UserContext';
+import { useUser } from '../../context/UserContext';
 
 export function Footer() {
   const year = new Date().getFullYear();
   const { userData } = useUser();
   const contact = userData?.contact ?? {};
-  const github  = userData?.github  ?? {};
-  const meta    = userData?.meta    ?? {};
+  const github = userData?.github ?? {};
+  const meta = userData?.meta ?? {};
 
   return (
     <footer className="site-footer" aria-label="Site footer">
@@ -15,7 +15,7 @@ export function Footer() {
         <div>
           <p className="footer-copy">
             © {year} {meta.displayName ?? 'CodeAether'}. Powered by{' '}
-            <a href="https://codearther.vercel.com" style={{ color: 'var(--color-system-400)' }}>CodeAether</a>
+            <a href="https://codeaether.vercel.com" style={{ color: 'var(--color-system-400)' }}>CodeAether</a>
             .<br />
             Fonts: Google Fonts (OFL) · Icons: Lucide React (ISC)
           </p>
@@ -56,8 +56,8 @@ export function Footer() {
 
         <div className="footer-links" aria-label="Legal links">
           <Link to="/privacy-policy" className="footer-link">PRIVACY POLICY</Link>
-          <Link to="/terms-of-use"   className="footer-link">TERMS OF USE</Link>
-          <Link to="/cookie-policy"  className="footer-link">COOKIE POLICY</Link>
+          <Link to="/terms-of-use" className="footer-link">TERMS OF USE</Link>
+          <Link to="/cookie-policy" className="footer-link">COOKIE POLICY</Link>
         </div>
       </div>
     </footer>

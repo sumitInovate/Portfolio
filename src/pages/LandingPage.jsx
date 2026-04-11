@@ -19,7 +19,7 @@ const FEATURES = [
   {
     icon: '🔗',
     title: 'Shareable URL',
-    desc: 'Your unique profile lives at codearther.vercel.com/{username}. One link to share with recruiters, anywhere.',
+    desc: 'Your unique profile lives at codeaether.vercel.com/{username}. One link to share with recruiters, anywhere.',
   },
 ];
 
