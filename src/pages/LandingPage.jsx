@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
-import { Link, useNavigate }   from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth }             from '../context/AuthContext';
-import { SystemCursor }        from '../components/layout/SystemCursor';
+import { useAuth } from '../context/AuthContext';
+import { SystemCursor } from '../components/layout/SystemCursor';
 
 /* ── Feature data ── */
 const FEATURES = [
@@ -24,8 +24,8 @@ const FEATURES = [
 ];
 
 const STATS = [
-  { val: '100%',  label: 'CUSTOM DATA' },
-  { val: 'RPG',   label: 'THEMED UI' },
+  { val: '100%', label: 'CUSTOM DATA' },
+  { val: 'RPG', label: 'THEMED UI' },
   { val: '1 URL', label: 'YOUR LINK' },
 ];
 
@@ -135,7 +135,7 @@ export default function LandingPage() {
           </a>
           <nav className="landing-topbar-nav" aria-label="Landing navigation">
             <a
-              href="https://github.com"
+              href="https://github.com/sumitInovate/Portfolio"
               target="_blank"
               rel="noopener noreferrer"
               className="landing-topbar-link"
@@ -175,7 +175,7 @@ export default function LandingPage() {
 
             {/* Subheadline */}
             <p className="landing-subheadline">
-              CodeAether transforms your developer profile into an immersive, 
+              CodeAether transforms your developer profile into an immersive,
               RPG-styled portfolio. Dynamic data. One link. Unforgettable first impression.
             </p>
 
