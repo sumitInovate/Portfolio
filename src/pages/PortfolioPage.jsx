@@ -3,15 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useUser } from '../context/UserContext';
 import { LoadingScreen } from '../components/layout/LoadingScreen';
-import { Navigation }    from '../components/layout/Navigation';
-import { HeroSection }   from '../components/sections/HeroSection';
-import { AboutSection }  from '../components/sections/AboutSection';
+import { Navigation } from '../components/layout/Navigation';
+import { HeroSection } from '../components/sections/HeroSection';
+import { AboutSection } from '../components/sections/AboutSection';
 import { SkillsSection } from '../components/sections/SkillsSection';
-import { ExperienceSection }      from '../components/sections/ExperienceSection';
-import { ProjectsSection }        from '../components/sections/ProjectsSection';
-import { CertificationsSection }  from '../components/sections/CertificationsSection';
+import { ExperienceSection } from '../components/sections/ExperienceSection';
+import { ProjectsSection } from '../components/sections/ProjectsSection';
+import { CertificationsSection } from '../components/sections/CertificationsSection';
 import { ContactSection } from '../components/sections/ContactSection';
-import { Footer }         from '../components/layout/Footer';
+import { Footer } from '../components/layout/Footer';
 
 /** Shown when a username slug has no matching data file */
 function UserNotFound({ slug }) {
@@ -51,7 +51,7 @@ function UserNotFound({ slug }) {
           cursor: 'pointer',
         }}
       >
-        ← RETURN TO CODEARTHER
+        ← RETURN TO CODEAETHER
       </button>
     </div>
   );

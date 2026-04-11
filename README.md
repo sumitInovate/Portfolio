@@ -7,7 +7,7 @@
 **The next-gen developer portfolio platform.**  
 Transform your skills into a legendary, immersive RPG-styled profile — shareable at one URL.
 
-[![Live Demo](https://img.shields.io/badge/Live-codearther.vercel.com-4A9EFF?style=flat-square&logo=vercel)](https://codearther.vercel.com)
+[![Live Demo](https://img.shields.io/badge/Live-codeaether.vercel.com-4A9EFF?style=flat-square&logo=vercel)](https://codeaether.vercel.com)
 [![Built With](https://img.shields.io/badge/Built_with-React_+_Vite-61DAFB?style=flat-square&logo=react)](https://react.dev)
 [![License](https://img.shields.io/badge/License-MIT-7B4FFF?style=flat-square)](LICENSE)
 
@@ -17,11 +17,11 @@ Transform your skills into a legendary, immersive RPG-styled profile — shareab
 
 ## 📸 UI Screenshots
 
-### Landing Page — `codearther.vercel.com`
+### Landing Page — `codeaether.vercel.com`
 ![Landing Page](docs/screenshots/01_landing_page.png)
 *New Gen Minimal UI with animated ambient background, gradient headline, and sign-in CTA.*
 
-### Hero Dashboard — `codearther.vercel.com/sumit-thakur`
+### Hero Dashboard — `codeaether.vercel.com/sumit-thakur`
 ![Hero Dashboard](docs/screenshots/02_hero_dashboard.png)
 *RPG-styled profile dashboard with XP progress panel, GitHub stats, hexagonal avatar, and rank badge.*
 
@@ -471,9 +471,9 @@ const { authUser, isAuthenticated, signIn, signOut, isLoading, authError } = use
 
 ## 📄 Legal
 
-- [Privacy Policy](https://codearther.vercel.com/privacy-policy)
-- [Terms of Use](https://codearther.vercel.com/terms-of-use)
-- [Cookie Policy](https://codearther.vercel.com/cookie-policy)
+- [Privacy Policy](https://codeaether.vercel.com/privacy-policy)
+- [Terms of Use](https://codeaether.vercel.com/terms-of-use)
+- [Cookie Policy](https://codeaether.vercel.com/cookie-policy)
 
 ---
 
@@ -487,6 +487,6 @@ const { authUser, isAuthenticated, signIn, signOut, isLoading, authError } = use
 
 <div align="center">
 
-Built with ⚡ by [CodeAether](https://codearther.vercel.com) · Powered by React + Vite + Three.js
+Built with ⚡ by [CodeAether](https://codeaether.vercel.com) · Powered by React + Vite + Three.js
 
 </div>

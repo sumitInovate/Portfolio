@@ -10,12 +10,12 @@
  */
 export async function sendToWhatsApp({ name, email, message }, phoneOverride) {
   // Prefer dynamic user number, fall back to env var
-  const phone  = phoneOverride || import.meta.env.VITE_MY_WHATSAPP_NUMBER;
+  const phone = phoneOverride || import.meta.env.VITE_MY_WHATSAPP_NUMBER;
   const apiKey = import.meta.env.VITE_CALLMEBOT_API_KEY;
 
   // Sanitize inputs before sending
-  const safeName    = String(name).slice(0, 50).replace(/[<>]/g, '');
-  const safeEmail   = String(email).slice(0, 100).replace(/[<>]/g, '');
+  const safeName = String(name).slice(0, 50).replace(/[<>]/g, '');
+  const safeEmail = String(email).slice(0, 100).replace(/[<>]/g, '');
   const safeMessage = String(message).slice(0, 1000).replace(/[<>]/g, '');
 
   if (!phone || !apiKey) {
@@ -31,7 +31,7 @@ export async function sendToWhatsApp({ name, email, message }, phoneOverride) {
     `👤 Name: ${safeName}\n` +
     `📧 Email: ${safeEmail}\n` +
     `💬 Message: ${safeMessage}\n\n` +
-    `🌐 codearther.vercel.com`
+    `🌐 codeaether.vercel.com`
   );
 
   const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${text}&apikey=${apiKey}`;
