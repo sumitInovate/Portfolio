@@ -1,0 +1,266 @@
+{
+  "meta": {
+    "username": "sumit-thakur",
+    "displayName": "Sumit Thakur",
+    "tagline": "Full Stack Engineer · .NET Core · React.js · GCP",
+    "avatarUrl": "/sumit_avatar.png",
+    "status": "available",
+    "theme": "solo-leveling"
+  },
+  "hero": {
+    "alertText": "A NEW HUNTER HAS AWAKENED!",
+    "firstName": "SUMIT",
+    "lastName": "THAKUR",
+    "role": "Full Stack Engineer",
+    "stack": "React.js · .NET Core · Enterprise Systems · GCP Certified",
+    "rank": "S",
+    "level": 22,
+    "xp": { "current": 8500, "max": 10000 },
+    "location": "Mumbai, India"
+  },
+  "about": {
+    "profileFields": [
+      { "key": "NAME",     "val": "Sumit Thakur" },
+      { "key": "CLASS",    "val": "Full Stack Developer" },
+      { "key": "LEVEL",    "val": "3+ Years Production Experience" },
+      { "key": "GUILD",    "val": "Ingram Micro (Current)" },
+      { "key": "PREV",     "val": "GEP Worldwide" },
+      { "key": "LOCATION", "val": "Mumbai, India" },
+      { "key": "TITLE",    "val": "\"Spotlight Awardee\" × 2" },
+      { "key": "CERT",     "val": "GCP Associate Cloud Engineer" },
+      { "key": "EDU",      "val": "B.E. in IT — VPP College, 2022" },
+      { "key": "STATUS",   "val": "Open to Opportunities" }
+    ],
+    "bio": [
+      "I am a results-driven Full Stack Developer with 3+ years forging enterprise-grade systems at Ingram Micro, where I've delivered 10+ production REST APIs, slashed onboarding time by 60%, and secured multi-region APAC/EMEA deployments.",
+      "Armed with C# .NET Core, React.js, and a GCP certification, I specialize in building performant backend systems and seamless frontends. Like a true Hunter, I adapt to any dungeon — from fintech to enterprise CRM — and clear it with precision and efficiency."
+    ],
+    "quickStats": [
+      { "val": "10+",   "label": "REST APIs Delivered" },
+      { "val": "60%",   "label": "Faster Onboarding" },
+      { "val": "35%+",  "label": "API Perf. Gain" },
+      { "val": "1000+", "label": "Enterprise Users Served" }
+    ]
+  },
+  "skills": [
+    {
+      "category": "BACKEND",
+      "icon": "⚔",
+      "skills": [
+        {
+          "name": "C# / .NET Core",
+          "alias": "SHADOW EXTRACTION",
+          "value": 95,
+          "desc": "Built 10+ production REST APIs with ASP.NET Web API, Entity Framework Core, and LINQ at Ingram Micro."
+        },
+        {
+          "name": "ASP.NET Web API",
+          "alias": "ARCHITECT'S BLADE",
+          "value": 92,
+          "desc": "Designed and shipped enterprise-grade Web APIs with clean architecture, middleware pipelines, and global error handling."
+        },
+        {
+          "name": "Entity Framework Core",
+          "alias": "MEMORY READING",
+          "value": 88,
+          "desc": "Managed complex domain models, migrations, and query optimizations using EF Core with SQL Server."
+        },
+        {
+          "name": "SQL Server / T-SQL",
+          "alias": "DATA EXTRACTION",
+          "value": 88,
+          "desc": "Designed relational schemas, wrote complex stored procedures & T-SQL, optimised queries for 35%+ perf gain."
+        }
+      ]
+    },
+    {
+      "category": "FRONTEND",
+      "icon": "👁",
+      "skills": [
+        {
+          "name": "React.js",
+          "alias": "DOMAIN EXPANSION",
+          "value": 90,
+          "desc": "Crafted enterprise frontends with React 18, hooks, context, and state management patterns."
+        },
+        {
+          "name": "JavaScript / ES2022+",
+          "alias": "SPEED READING",
+          "value": 88,
+          "desc": "Deep mastery of modern JS including async/await, destructuring, optional chaining, and module systems."
+        },
+        {
+          "name": "TypeScript",
+          "alias": "IRON MIND",
+          "value": 80,
+          "desc": "Strongly typed React & Node.js projects with interfaces, generics, and strict null checks."
+        },
+        {
+          "name": "HTML5 / CSS3",
+          "alias": "FOUNDATION MAGIC",
+          "value": 85,
+          "desc": "Built responsive, accessible UIs with semantic HTML5, Flexbox, Grid, and custom CSS animations."
+        }
+      ]
+    },
+    {
+      "category": "CLOUD & DEVOPS",
+      "icon": "☁",
+      "skills": [
+        {
+          "name": "GCP (ACE Certified 2024)",
+          "alias": "RULER'S AUTHORITY",
+          "value": 88,
+          "desc": "GCP ACE certified. Deployed multi-region services across APAC & EMEA using GKE, Cloud Run, and Cloud SQL."
+        },
+        {
+          "name": "Azure",
+          "alias": "SKY DOMAIN",
+          "value": 78,
+          "desc": "Provisioned Azure App Services, Storage, and Azure AD for enterprise deployments."
+        },
+        {
+          "name": "Docker / CI-CD",
+          "alias": "GATE TRAVERSAL",
+          "value": 82,
+          "desc": "Containerised microservices with Docker Compose and automated pipelines via GitHub Actions & Azure DevOps."
+        },
+        {
+          "name": "Dynamics 365 / Power Automate",
+          "alias": "ARCHITECT'S EYE",
+          "value": 80,
+          "desc": "Extended D365 modules for 1,000+ global users, built Power Automate flows for onboarding pipelines."
+        }
+      ]
+    },
+    {
+      "category": "SECURITY",
+      "icon": "🛡",
+      "skills": [
+        {
+          "name": "JWT / OAuth 2.0",
+          "alias": "IRON BODY",
+          "value": 88,
+          "desc": "Implemented enterprise auth flows, OWASP-hardened APIs, and multi-org SSO integrations."
+        },
+        {
+          "name": "OWASP Practices",
+          "alias": "BARRIER OF THE ABSOLUTE",
+          "value": 85,
+          "desc": "Applied OWASP Top 10 mitigations: SQL injection prevention, XSS sanitisation, rate limiting, and secure headers."
+        },
+        {
+          "name": "HTTPS / TLS",
+          "alias": "SEAL OF PROTECTION",
+          "value": 88,
+          "desc": "Enforced HTTPS everywhere, configured TLS termination, certificate rotation, and HSTS policies."
+        }
+      ]
+    }
+  ],
+  "experience": [
+    {
+      "rank": "S",
+      "guild": "Ingram Micro",
+      "role": "Software Engineer — Full Stack (.NET + React)",
+      "period": "Oct 2022 – Present",
+      "location": "Mumbai, IN",
+      "status": "ACTIVE",
+      "achievements": [
+        "Architected & delivered 10+ production-grade REST APIs using ASP.NET Web API + Entity Framework Core.",
+        "Reduced employee onboarding time by 60% by building an automation pipeline with Redis & Hangfire.",
+        "Improved critical API response times by 35%+ through query optimization and caching strategies.",
+        "Secured multi-region OAuth 2.0 deployments across APAC & EMEA with OWASP-compliant auth flows.",
+        "Extended Microsoft Dynamics 365 modules serving 1,000+ global enterprise users.",
+        "Built real-time notification system using SignalR and Azure Service Bus."
+      ]
+    },
+    {
+      "rank": "A",
+      "guild": "GEP Worldwide",
+      "role": "Associate Analyst — Backend Development",
+      "period": "Jun 2022 – Oct 2022",
+      "location": "Mumbai, IN",
+      "status": "COMPLETED",
+      "achievements": [
+        "Contributed to backend microservices in .NET Core for procurement analytics platform.",
+        "Wrote stored procedures and optimized SQL Server queries for large-scale data pipelines.",
+        "Collaborated in Agile sprints to deliver features for enterprise procurement clients."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "rank": "S",
+      "title": "Enterprise CRM Platform",
+      "tech": "C# · .NET Core · Dynamics 365 · React.js · Azure",
+      "desc": "End-to-end CRM platform serving 1,000+ global enterprise users across APAC & EMEA. Features multi-region deployments, OAuth 2.0 SSO, real-time notifications, and Power Automate integrations.",
+      "classified": true,
+      "link": null
+    },
+    {
+      "rank": "A",
+      "title": "AlgoVisualizer",
+      "tech": "React.js · Netlify · CI/CD · GitHub Actions",
+      "desc": "Interactive algorithm visualizer featuring 15+ sorting & pathfinding algorithms with step-by-step animation. Deployed with full CI/CD pipeline on Netlify.",
+      "classified": false,
+      "link": "https://algovisualizerindia.netlify.app"
+    }
+  ],
+  "certifications": [
+    {
+      "variant": "gold",
+      "type": "[CERTIFICATION]",
+      "title": "Google Cloud Associate Cloud Engineer",
+      "year": "2024"
+    },
+    {
+      "variant": "purple",
+      "type": "[TITLE EARNED]",
+      "title": "Spotlight Award — Bringing Innovation",
+      "year": "Ingram Micro · 2023"
+    },
+    {
+      "variant": "purple",
+      "type": "[TITLE EARNED]",
+      "title": "Spotlight Award — Driving Results",
+      "year": "Ingram Micro · 2024"
+    },
+    {
+      "variant": "gold",
+      "type": "[EDUCATION]",
+      "title": "B.E. in Information Technology",
+      "year": "VPP College of Engineering, Mumbai · 2022"
+    }
+  ],
+  "contact": {
+    "email": "sumitln2000@gmail.com",
+    "whatsappNumber": "919137655049",
+    "linkedin": "https://linkedin.com/in/itsmesumit",
+    "location": "Mumbai, India"
+  },
+  "github": {
+    "username": "sumit-thakur",
+    "stats": [
+      { "label": "Global Developer Rating:", "value": "TOP 1%" },
+      { "label": "Commits (Last 12 Mos):",   "value": "450+" },
+      { "label": "Open Source Contributions:", "value": "15+" },
+      { "label": "Languages:",                "value": "C#, JS, TS" }
+    ],
+    "heatmapSeed": [
+      0,0,1,0,2,0,0, 0,1,0,2,3,1,0, 0,0,2,1,0,2,0, 1,2,3,2,1,0,0,
+      0,2,1,3,2,0,1, 1,0,2,0,3,2,0, 0,1,0,2,1,0,2, 2,3,1,0,2,1,0,
+      0,0,3,2,1,2,0, 1,2,0,3,2,1,0, 0,1,2,0,1,3,2, 3,2,1,0,2,1,0,
+      1,0,2,1,3,0,2, 0,2,1,0,2,3,1, 1,3,2,0,1,2,0, 0,1,3,2,1,0,2,
+      2,0,1,3,0,2,1, 0,2,0,3,1,2,0, 1,0,2,1,3,0,2, 0,3,2,1,0,2,1,
+      1,2,0,3,1,0,2, 2,1,3,0,2,1,0, 0,2,1,0,3,2,1, 1,0,2,3,0,1,2,
+      0,1,2,0,3,1,0, 2,3,0,1,2,0,1, 1,2,3,0,1,2,0, 0,1,0,2,3,1,2,
+      3,0,2,1,0,2,3, 1,2,0,3,2,1,0, 0,2,3,1,0,2,1, 2,1,0,3,2,0,1,
+      0,1,2,3,0,1,2, 1,0,3,2,1,0,2, 2,3,0,1,2,0,1, 0,2,1,3,0,2,1,
+      1,0,2,0,3,1,2, 3,1,2,0,1,3,0, 2,0,1,2,3,0,1, 1,2,0,3,1,2,0,
+      0,3,2,1,2,0,1, 2,1,3,0,2,1,0, 1,2,0,3,1,0,2, 0,1,2,0,3,1,2,
+      3,2,0,1,2,3,0, 1,0,2,3,1,0,2, 2,3,1,0,2,1,3, 0,2,1,3,0,2,1,
+      2,1,0,3,2,1,0, 3,2,1,0,3,2,1
+    ]
+  }
+}

@@ -1,10 +1,16 @@
-import { motion } from 'framer-motion';
+import { motion }  from 'framer-motion';
+import { useUser } from '../../context/UserContext';
 
 /**
- * CharacterAvatar — pixel art portrait inside a hexagonal frame.
- * Matches the reference design: hexagon border, subtle glow, "VATAR: SUMIT" label below.
+ * CharacterAvatar — hexagonal portrait for the Hero section.
+ * Reads avatarUrl and displayName from UserContext dynamically.
  */
 export function CharacterAvatar() {
+  const { userData } = useUser();
+  const avatarUrl   = userData?.meta?.avatarUrl   ?? '/sumit_avatar.png';
+  const displayName = userData?.meta?.displayName ?? 'HUNTER';
+  const firstName   = displayName.split(' ')[0].toUpperCase();
+
   return (
     <div className="avatar-stage">
       {/* Outer hex glow ring */}
@@ -33,9 +39,9 @@ export function CharacterAvatar() {
             points="100,10 190,55 190,175 100,220 10,175 10,55"
             fill="rgba(13,21,46,0.92)"
           />
-          {/* Portrait image */}
+          {/* Portrait image — dynamic */}
           <image
-            href="/sumit_avatar.png"
+            href={avatarUrl}
             x="10"
             y="10"
             width="180"
@@ -63,7 +69,7 @@ export function CharacterAvatar() {
       {/* Label under avatar */}
       <div className="avatar-label">
         <span className="avatar-label-key">PLAYER:</span>
-        <span className="avatar-label-val">SUMIT</span>
+        <span className="avatar-label-val">{firstName}</span>
       </div>
     </div>
   );

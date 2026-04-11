@@ -1,13 +1,14 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useState }      from 'react';
+import { useForm }       from 'react-hook-form';
+import { zodResolver }   from '@hookform/resolvers/zod';
+import { z }             from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RevealOnScroll } from '../ui/RevealOnScroll';
-import { SystemPanel } from '../ui/SystemPanel';
-import { GlowButton } from '../ui/GlowButton';
+import { SystemPanel }   from '../ui/SystemPanel';
+import { GlowButton }    from '../ui/GlowButton';
 import { sendToWhatsApp } from '../../utils/whatsapp';
 import { Mail, MessageSquare, User } from 'lucide-react';
+import { useUser }       from '../../context/UserContext';
 
 const schema = z.object({
   name: z
@@ -23,6 +24,9 @@ const schema = z.object({
 });
 
 export function ContactSection() {
+  const { userData } = useUser();
+  const contact = userData?.contact ?? {};
+
   const {
     register,
     handleSubmit,
@@ -30,11 +34,12 @@ export function ContactSection() {
     reset,
   } = useForm({ resolver: zodResolver(schema) });
 
-  const [status, setStatus] = useState(null); // null | 'accepted' | 'failed'
+  const [status, setStatus] = useState(null);
 
   const onSubmit = async (data) => {
     setStatus(null);
-    const result = await sendToWhatsApp(data);
+    // Use the user's whatsapp number from their profile
+    const result = await sendToWhatsApp(data, contact.whatsappNumber);
     setStatus(result.success ? 'accepted' : 'failed');
     if (result.success) reset();
   };
@@ -54,8 +59,8 @@ export function ContactSection() {
               </div>
 
               <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-6)', lineHeight: '1.6' }}>
-                Accept this quest to send a message directly to Sumit Thakur.
-                Your details will be delivered to the hunter via WhatsApp.
+                Accept this quest to send a message directly to {userData?.meta?.displayName ?? 'the Hunter'}.
+                Your details will be delivered via WhatsApp.
               </p>
 
               <form
@@ -159,18 +164,20 @@ export function ContactSection() {
                     role="alert"
                     aria-live="assertive"
                   >
-                    ✕ TRANSMISSION FAILED — Try emailing sumitln2000@gmail.com directly.
+                    ✕ TRANSMISSION FAILED — Try emailing {contact.email} directly.
                   </motion.div>
                 )}
               </AnimatePresence>
 
               {/* Alternative contact */}
               <div style={{ marginTop: 'var(--space-6)', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--color-border)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', display: 'flex', gap: 'var(--space-6)', flexWrap: 'wrap' }}>
-                <span>✉ sumitln2000@gmail.com</span>
-                <span>📍 Mumbai, India</span>
-                <a href="https://linkedin.com/in/itsmesumit" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-system-400)' }}>
-                  LinkedIn →
-                </a>
+                {contact.email && <span>✉ {contact.email}</span>}
+                {contact.location && <span>📍 {contact.location}</span>}
+                {contact.linkedin && (
+                  <a href={contact.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-system-400)' }}>
+                    LinkedIn →
+                  </a>
+                )}
               </div>
             </SystemPanel>
           </RevealOnScroll>

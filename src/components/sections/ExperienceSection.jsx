@@ -1,42 +1,13 @@
-import { useState } from 'react';
+import { useState }      from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RevealOnScroll } from '../ui/RevealOnScroll';
-import { RankBadge } from '../ui/RankBadge';
-
-const quests = [
-  {
-    rank: 'S',
-    guild: 'Ingram Micro',
-    role: 'Software Engineer — Full Stack (.NET + React)',
-    period: 'Oct 2022 – Present',
-    location: 'Mumbai, IN',
-    status: 'ACTIVE',
-    achievements: [
-      'Architected & delivered 10+ production-grade REST APIs using ASP.NET Web API + Entity Framework Core.',
-      'Reduced employee onboarding time by 60% by building an automation pipeline with Redis & Hangfire.',
-      'Improved critical API response times by 35%+ through query optimization and caching strategies.',
-      'Secured multi-region OAuth 2.0 deployments across APAC & EMEA with OWASP-compliant auth flows.',
-      'Extended Microsoft Dynamics 365 modules serving 1,000+ global enterprise users.',
-      'Built real-time notification system using SignalR and Azure Service Bus.',
-    ],
-  },
-  {
-    rank: 'A',
-    guild: 'GEP Worldwide',
-    role: 'Associate Analyst — Backend Development',
-    period: 'Jun 2022 – Oct 2022',
-    location: 'Mumbai, IN',
-    status: 'COMPLETED',
-    achievements: [
-      'Contributed to backend microservices in .NET Core for procurement analytics platform.',
-      'Wrote stored procedures and optimized SQL Server queries for large-scale data pipelines.',
-      'Collaborated in Agile sprints to deliver features for enterprise procurement clients.',
-    ],
-  },
-];
+import { RankBadge }     from '../ui/RankBadge';
+import { useUser }       from '../../context/UserContext';
 
 export function ExperienceSection() {
   const [expanded, setExpanded] = useState(0);
+  const { userData } = useUser();
+  const quests = userData?.experience ?? [];
 
   return (
     <section id="experience" className="section" style={{ background: 'var(--color-abyss)' }}>

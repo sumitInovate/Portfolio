@@ -1,33 +1,10 @@
 import { RevealOnScroll } from '../ui/RevealOnScroll';
-
-const certs = [
-  {
-    variant: 'gold',
-    type: '[CERTIFICATION]',
-    title: 'Google Cloud Associate Cloud Engineer',
-    year: '2024',
-  },
-  {
-    variant: 'purple',
-    type: '[TITLE EARNED]',
-    title: 'Spotlight Award — Bringing Innovation',
-    year: 'Ingram Micro · 2023',
-  },
-  {
-    variant: 'purple',
-    type: '[TITLE EARNED]',
-    title: 'Spotlight Award — Driving Results',
-    year: 'Ingram Micro · 2024',
-  },
-  {
-    variant: 'gold',
-    type: '[EDUCATION]',
-    title: 'B.E. in Information Technology',
-    year: 'VPP College of Engineering, Mumbai · 2022',
-  },
-];
+import { useUser }        from '../../context/UserContext';
 
 export function CertificationsSection() {
+  const { userData } = useUser();
+  const certs = userData?.certifications ?? [];
+
   return (
     <section id="certifications" className="section" style={{ background: 'var(--color-abyss)' }}>
       <div className="container">

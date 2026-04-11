@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion }  from 'framer-motion';
+import { useUser } from '../../context/UserContext';
 
 const RANKS = ['E', 'D', 'C', 'B', 'A', 'S'];
 const RANK_COLORS = {
@@ -11,28 +12,36 @@ const RANK_COLORS = {
   S: 'var(--rank-s)',
 };
 
-const XP_CURRENT = 8500;
-const XP_MAX = 10000;
-const XP_PCT = Math.round((XP_CURRENT / XP_MAX) * 100);
-const LEVEL = 22;
-const ACTIVE_RANK = 'S';
-
 export function XPProgressPanel() {
-  const [barPct, setBarPct] = useState(0);
+  const { userData } = useUser();
+  const hero = userData?.hero ?? {};
+
+  const XP_CURRENT  = hero.xp?.current  ?? 0;
+  const XP_MAX      = hero.xp?.max      ?? 10000;
+  const XP_PCT      = Math.round((XP_CURRENT / XP_MAX) * 100);
+  const LEVEL       = hero.level        ?? 1;
+  const ACTIVE_RANK = hero.rank         ?? 'E';
+
+  const [barPct,  setBarPct]  = useState(0);
   const [countXP, setCountXP] = useState(0);
   const started = useRef(false);
 
+  // Re-run animation when XP data changes (new user loaded)
   useEffect(() => {
-    if (started.current) return;
+    if (!XP_CURRENT) return;
+    started.current = false;
+  }, [XP_CURRENT]);
+
+  useEffect(() => {
+    if (started.current || !XP_CURRENT) return;
     started.current = true;
 
-    // Animate XP count-up
     const duration = 1400;
     const startTime = performance.now();
     const step = (now) => {
-      const elapsed = Math.min(now - startTime, duration);
+      const elapsed  = Math.min(now - startTime, duration);
       const progress = elapsed / duration;
-      const eased = 1 - Math.pow(1 - progress, 3);
+      const eased    = 1 - Math.pow(1 - progress, 3);
       setCountXP(Math.round(eased * XP_CURRENT));
       setBarPct(eased * XP_PCT);
       if (elapsed < duration) requestAnimationFrame(step);
@@ -40,7 +49,7 @@ export function XPProgressPanel() {
 
     const timer = setTimeout(() => requestAnimationFrame(step), 800);
     return () => clearTimeout(timer);
-  }, []);
+  }, [XP_CURRENT, XP_PCT]);
 
   return (
     <motion.div
@@ -62,14 +71,8 @@ export function XPProgressPanel() {
       {/* XP progress bar */}
       <div className="xp-bar-wrap">
         <div className="xp-bar-track">
-          <div
-            className="xp-bar-fill"
-            style={{ width: `${barPct}%` }}
-          />
-          <div
-            className="xp-bar-glow"
-            style={{ left: `${barPct}%` }}
-          />
+          <div className="xp-bar-fill" style={{ width: `${barPct}%` }} />
+          <div className="xp-bar-glow"  style={{ left: `${barPct}%` }} />
         </div>
         <div className="xp-bar-labels">
           <span className="xp-bar-current">{countXP.toLocaleString()}/{XP_MAX.toLocaleString()} XP</span>
