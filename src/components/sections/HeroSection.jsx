@@ -1,19 +1,21 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { SystemPanel } from '../ui/SystemPanel';
-import { RankBadge } from '../ui/RankBadge';
-import { GlowButton } from '../ui/GlowButton';
-import { SystemText } from '../ui/SystemText';
-import { XPProgressPanel } from '../ui/XPProgressPanel';
+import { SystemPanel }      from '../ui/SystemPanel';
+import { RankBadge }        from '../ui/RankBadge';
+import { GlowButton }       from '../ui/GlowButton';
+import { SystemText }       from '../ui/SystemText';
+import { XPProgressPanel }  from '../ui/XPProgressPanel';
 import { GitHubStatsPanel } from '../ui/GitHubStatsPanel';
-import { CharacterAvatar } from '../ui/CharacterAvatar';
-import { useNavigate } from 'react-router-dom';
-import { MapPin, Star } from 'lucide-react';
-import { useAudio } from '../../context/AudioContext';
+import { CharacterAvatar }  from '../ui/CharacterAvatar';
+import { useNavigate }      from 'react-router-dom';
+import { MapPin }           from 'lucide-react';
+import { useAudio }         from '../../context/AudioContext';
+import { useUser }          from '../../context/UserContext';
 
 export function HeroSection() {
   const navigate = useNavigate();
   const { play } = useAudio();
+  const { userData } = useUser();
 
   useEffect(() => {
     const timer = setTimeout(() => play(), 1200);
@@ -24,13 +26,15 @@ export function HeroSection() {
     document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const hero = userData?.hero ?? {};
+  const meta = userData?.meta ?? {};
+
   return (
     <section id="hero" className="hero-section" aria-label="Hero section">
       {/* ── Grid background ── */}
       <div className="hero-grid-bg" aria-hidden="true">
         <div className="hero-grid-overlay" />
         <div className="hero-grid-vignette" />
-        {/* Subtle ambient glow in center */}
         <div className="hero-grid-glow" />
       </div>
 
@@ -65,52 +69,52 @@ export function HeroSection() {
             transition={{ duration: 1.0, delay: 0.25, type: 'spring', stiffness: 70, damping: 18 }}
           >
             <SystemPanel>
-              {/* Invisible panel chrome kept for corner brackets — header hidden */}
               <div className="hero-info-inner">
-
                 {/* Left sub: Avatar */}
                 <div className="hero-avatar-col">
-                  <CharacterAvatar />
+                  <CharacterAvatar avatarUrl={meta.avatarUrl} />
                 </div>
 
                 {/* Right sub: Info */}
                 <div className="hero-data-col">
                   {/* System alert */}
                   <p className="hero-alert-text">
-                    <SystemText text="A NEW HUNTER HAS AWAKENED!" speed={26} delay={600} />
+                    <SystemText text={hero.alertText ?? 'HUNTER PROFILE LOADED'} speed={26} delay={600} />
                   </p>
 
                   {/* Name */}
-                  <h1 className="hero-name">SUMIT<br />THAKUR</h1>
+                  <h1 className="hero-name">{hero.firstName}<br />{hero.lastName}</h1>
 
                   {/* Roles */}
-                  <p className="hero-role">Full Stack Engineer</p>
-                  <p className="hero-stack">React.js • .NET Core • Enterprise Systems • GCP Certified</p>
+                  <p className="hero-role">{hero.role}</p>
+                  <p className="hero-stack">{hero.stack}</p>
 
                   {/* Stats grid */}
                   <div className="hero-stats">
                     <div className="hero-stat">
                       <span className="hero-stat-label">RANK:</span>
-                      <RankBadge rank="S" />
+                      <RankBadge rank={hero.rank ?? 'E'} />
                     </div>
                     <div className="hero-stat">
                       <span className="hero-stat-label">EXP:</span>
-                      <span className="hero-stat-val">3+ YRS</span>
+                      <span className="hero-stat-val">{hero.level}+ LVL</span>
                     </div>
                     <div className="hero-stat">
                       <MapPin size={10} color="var(--color-system-400)" />
                       <span className="hero-stat-label">LOCATION:</span>
-                      <span className="hero-stat-val">Mumbai, India</span>
+                      <span className="hero-stat-val">{hero.location}</span>
                     </div>
                     <div className="hero-stat">
                       <span className="hero-stat-label">STATUS:</span>
-                      <span className="hero-stat-available">AVAILABLE</span>
+                      <span className="hero-stat-available">
+                        {meta.status === 'available' ? 'AVAILABLE' : meta.status?.toUpperCase()}
+                      </span>
                     </div>
                   </div>
 
                   {/* CTAs */}
                   <div className="hero-cta-row">
-                    <GlowButton onClick={() => navigate('/contact')} className="hero-cta-btn">
+                    <GlowButton onClick={() => navigate(`/${userData?.meta?.username}/contact`)} className="hero-cta-btn">
                       ACCEPT QUEST
                     </GlowButton>
                     <GlowButton onClick={scrollToAbout} variant="secondary" className="hero-cta-btn">

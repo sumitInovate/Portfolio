@@ -149,6 +149,12 @@ button {
 
 /* ── Page layout ── */
 .page-wrapper {
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Used specifically by PortfolioPage — has sidebar nav offset */
+.portfolio-page-wrapper {
   margin-left: var(--nav-width);
   min-height: 100vh;
   position: relative;
@@ -200,5 +206,6 @@ button {
 /* ── Mobile nav offset ── */
 @media (max-width: 768px) {
   :root { --nav-width: 0px; }
-  .page-wrapper { margin-left: 0; padding-top: 56px; }
+  .page-wrapper { margin-left: 0; }
+  .portfolio-page-wrapper { margin-left: 0; padding-top: 56px; }
 }

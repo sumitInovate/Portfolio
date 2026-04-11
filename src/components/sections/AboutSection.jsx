@@ -1,21 +1,15 @@
 import { RevealOnScroll } from '../ui/RevealOnScroll';
-import { SystemPanel } from '../ui/SystemPanel';
-import { motion } from 'framer-motion';
-
-const profileFields = [
-  { key: 'NAME',     val: 'Sumit Thakur' },
-  { key: 'CLASS',    val: 'Full Stack Developer' },
-  { key: 'LEVEL',    val: '3+ Years Production Experience' },
-  { key: 'GUILD',    val: 'Ingram Micro (Current)' },
-  { key: 'PREV',     val: 'GEP Worldwide' },
-  { key: 'LOCATION', val: 'Mumbai, India' },
-  { key: 'TITLE',    val: '"Spotlight Awardee" × 2' },
-  { key: 'CERT',     val: 'GCP Associate Cloud Engineer' },
-  { key: 'EDU',      val: 'B.E. in IT — VPP College, 2022' },
-  { key: 'STATUS',   val: 'Open to Opportunities' },
-];
+import { SystemPanel }    from '../ui/SystemPanel';
+import { motion }         from 'framer-motion';
+import { useUser }        from '../../context/UserContext';
 
 export function AboutSection() {
+  const { userData } = useUser();
+  const about = userData?.about ?? {};
+  const profileFields = about.profileFields ?? [];
+  const bio           = about.bio ?? [];
+  const quickStats    = about.quickStats ?? [];
+
   return (
     <section id="about" className="section" style={{ background: 'var(--color-abyss)' }}>
       <div className="container">
@@ -45,28 +39,16 @@ export function AboutSection() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
               <SystemPanel>
                 <div className="panel-header"><span>BIO.EXE</span></div>
-                <p className="about-bio">
-                  I am a results-driven Full Stack Developer with 3+ years forging enterprise-grade
-                  systems at Ingram Micro, where I've delivered 10+ production REST APIs, slashed
-                  onboarding time by 60%, and secured multi-region APAC/EMEA deployments.
-                </p>
-                <br />
-                <p className="about-bio">
-                  Armed with C# .NET Core, React.js, and a GCP certification, I specialize in
-                  building performant backend systems and seamless frontends. Like a true Hunter,
-                  I adapt to any dungeon — from fintech to enterprise CRM — and clear it with
-                  precision and efficiency.
-                </p>
+                {bio.map((paragraph, i) => (
+                  <p key={i} className="about-bio" style={i > 0 ? { marginTop: 'var(--space-4)' } : {}}>
+                    {paragraph}
+                  </p>
+                ))}
               </SystemPanel>
 
               {/* Quick stats */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
-                {[
-                  { val: '10+', label: 'REST APIs Delivered' },
-                  { val: '60%', label: 'Faster Onboarding' },
-                  { val: '35%+', label: 'API Perf. Gain' },
-                  { val: '1000+', label: 'Enterprise Users Served' },
-                ].map(({ val, label }) => (
+                {quickStats.map(({ val, label }) => (
                   <motion.div
                     key={label}
                     whileHover={{ scale: 1.03 }}

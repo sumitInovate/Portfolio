@@ -1,31 +1,15 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState }      from 'react';
+import { motion }        from 'framer-motion';
 import { RevealOnScroll } from '../ui/RevealOnScroll';
-import { RankBadge } from '../ui/RankBadge';
-import { GlowButton } from '../ui/GlowButton';
+import { RankBadge }     from '../ui/RankBadge';
+import { GlowButton }    from '../ui/GlowButton';
 import { ExternalLink, Lock } from 'lucide-react';
-
-const projects = [
-  {
-    rank: 'S',
-    title: 'Enterprise CRM Platform',
-    tech: 'C# · .NET Core · Dynamics 365 · React.js · Azure',
-    desc: 'End-to-end CRM platform serving 1,000+ global enterprise users across APAC & EMEA. Features multi-region deployments, OAuth 2.0 SSO, real-time notifications, and Power Automate integrations.',
-    classified: true,
-    link: null,
-  },
-  {
-    rank: 'A',
-    title: 'AlgoVisualizer',
-    tech: 'React.js · Netlify · CI/CD · GitHub Actions',
-    desc: 'Interactive algorithm visualizer featuring 15+ sorting & pathfinding algorithms with step-by-step animation. Deployed with full CI/CD pipeline on Netlify.',
-    classified: false,
-    link: 'https://algovisualizerindia.netlify.app',
-  },
-];
+import { useUser }       from '../../context/UserContext';
 
 export function ProjectsSection() {
   const [unlockedIdx, setUnlockedIdx] = useState(null);
+  const { userData } = useUser();
+  const projects = userData?.projects ?? [];
 
   return (
     <section id="projects" className="section" style={{ background: 'rgba(8, 10, 24, 0.97)' }}>
