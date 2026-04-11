@@ -18,10 +18,15 @@
   --color-monarch-glow: rgba(123, 79, 255, 0.4);
 
   /* ── Rank Colors ── */
-  --rank-s:   #FFD700;
-  --rank-a:   #BF00FF;
-  --rank-b:   #0080FF;
-  --rank-c:   #00CC44;
+  --rank-s:   #FFD700;   /* Gold  */
+  --rank-a:   #BF00FF;   /* Purple */
+  --rank-b:   #0080FF;   /* Blue */
+  --rank-c:   #00CC44;   /* Green */
+  --rank-e:   #5A6478;   /* Iron grey */
+  --rank-f:   #6B7A94;   /* Steel */
+  --rank-g:   #4A8FD4;   /* Sky blue */
+  --rank-j:   #9B6FFF;   /* Violet */
+  --rank-k:   #D4A843;   /* Amber */
 
   /* ── Semantic ── */
   --color-text-primary:   #E8F4FF;
@@ -76,13 +81,13 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
   background-color: var(--color-void);
   color: var(--color-text-primary);
   font-family: var(--font-body);
-  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

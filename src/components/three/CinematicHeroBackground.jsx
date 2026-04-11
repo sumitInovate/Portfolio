@@ -132,22 +132,6 @@ export function CinematicHeroBackground() {
       {/* Layer 1: Deep void base */}
       <div className="chb-base" />
 
-      {/* Layer 2: Character image — fades into the atmosphere */}
-      <div className="chb-character-wrap">
-        <img
-          src="/Sumit_Solo.png"
-          alt=""
-          className="chb-character-img"
-          loading="eager"
-          draggable="false"
-        />
-        {/* Gradient masks to blend the image edges */}
-        <div className="chb-character-fade-left" />
-        <div className="chb-character-fade-right" />
-        <div className="chb-character-fade-top" />
-        <div className="chb-character-fade-bottom" />
-      </div>
-
       {/* Layer 3: Gate mega-glow — sits behind/around the character */}
       <div className="chb-gate-glow" />
       <div className="chb-gate-glow chb-gate-glow--inner" />

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://antigravity.vercel.app/sitemap.xml
+Sitemap: https://itsmesumit.vercel.app/sitemap.xml
