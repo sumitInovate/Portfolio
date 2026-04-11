@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import { Analytics } from '@vercel/analytics/react';
 
 // Audio
 import { AudioProvider } from './context/AudioContext';
@@ -83,6 +84,9 @@ function App() {
 
         {/* Global cookie banner */}
         <CookieBanner />
+
+        {/* Vercel Web Analytics */}
+        <Analytics />
       </BrowserRouter>
     </AudioProvider>
   );
