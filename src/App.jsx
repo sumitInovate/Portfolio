@@ -15,6 +15,7 @@ import { CookieBanner }   from './components/layout/CookieBanner';
 
 // Pages — lazy loaded for route-level code splitting
 const LandingPage   = lazy(() => import('./pages/LandingPage'));
+const RegisterPage  = lazy(() => import('./pages/RegisterPage'));
 const PortfolioPage = lazy(() => import('./pages/PortfolioPage'));
 const PrivacyPolicy = lazy(() => import('./pages/legal/PrivacyPolicy'));
 const TermsOfUse    = lazy(() => import('./pages/legal/TermsOfUse'));
@@ -51,12 +52,18 @@ function AnimatedRoutes() {
           {/* Root — CodeAether landing + auth */}
           <Route path="/" element={<LandingPage />} />
 
+          {/* Registration flow */}
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* Demo — loads boilerplate profile */}
+          <Route path="/demo" element={<PortfolioPage forceUsername="boilerplate" />} />
+
           {/* Legal pages */}
           <Route path="/privacy-policy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
           <Route path="/terms-of-use"   element={<PageTransition><TermsOfUse /></PageTransition>} />
           <Route path="/cookie-policy"  element={<PageTransition><CookiePolicy /></PageTransition>} />
 
-          {/* Dynamic user portfolios — must be last to avoid catching /legal/* */}
+          {/* Dynamic user portfolios — must be last to avoid catching /legal/* etc. */}
           <Route path="/:username" element={<PortfolioPage />} />
         </Routes>
       </Suspense>

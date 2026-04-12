@@ -11,11 +11,13 @@ import { useNavigate }      from 'react-router-dom';
 import { MapPin }           from 'lucide-react';
 import { useAudio }         from '../../context/AudioContext';
 import { useUser }          from '../../context/UserContext';
+import { useAuth }          from '../../context/AuthContext';
 
 export function HeroSection() {
   const navigate = useNavigate();
-  const { play } = useAudio();
-  const { userData } = useUser();
+  const { play }              = useAudio();
+  const { userData, userAvatar } = useUser();
+  const { authUser, isAuthenticated, signOut } = useAuth();
 
   useEffect(() => {
     const timer = setTimeout(() => play(), 1200);
@@ -28,6 +30,16 @@ export function HeroSection() {
 
   const hero = userData?.hero ?? {};
   const meta = userData?.meta ?? {};
+
+  // Show LOGOUT only when signed-in user is viewing their own profile
+  const isOwnProfile =
+    isAuthenticated &&
+    authUser?.username === meta?.username;
+
+  const handleLogout = () => {
+    signOut();
+    navigate('/');
+  };
 
   return (
     <section id="hero" className="hero-section" aria-label="Hero section">
@@ -48,7 +60,38 @@ export function HeroSection() {
           </div>
           <span className="hud-bar-title">SYSTEM NOTIFICATION</span>
         </div>
-        <span className="hud-bar-right">X GATE ACTIVATED</span>
+
+        {/* LOGOUT button shown for own profile, else static label */}
+        {isOwnProfile ? (
+          <button
+            onClick={handleLogout}
+            aria-label="Sign out"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '10px',
+              letterSpacing: '2px',
+              color: '#ff5f57',
+              background: 'transparent',
+              border: '1px solid rgba(255, 95, 87, 0.35)',
+              borderRadius: '3px',
+              padding: '4px 12px',
+              cursor: 'pointer',
+              transition: 'background 0.2s, box-shadow 0.2s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(255, 95, 87, 0.08)';
+              e.currentTarget.style.boxShadow  = '0 0 12px rgba(255, 95, 87, 0.3)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.boxShadow  = 'none';
+            }}
+          >
+            LOGOUT
+          </button>
+        ) : (
+          <span className="hud-bar-right">X GATE ACTIVATED</span>
+        )}
       </div>
 
       {/* ── 2-column RPG dashboard ── */}
@@ -72,7 +115,7 @@ export function HeroSection() {
               <div className="hero-info-inner">
                 {/* Left sub: Avatar */}
                 <div className="hero-avatar-col">
-                  <CharacterAvatar avatarUrl={meta.avatarUrl} />
+                  <CharacterAvatar avatarUrl={userAvatar ?? meta.avatarUrl} />
                 </div>
 
                 {/* Right sub: Info */}
