@@ -8,48 +8,15 @@ import { SystemCursor } from '../components/layout/SystemCursor';
 
 // - Helpers -
 
-function fileToBase64(file, timeoutMs = 15000) {
+function fileToBase64(file) {
   return new Promise((resolve, reject) => {
-    let settled = false;
-    const settleResolve = (value) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timeoutId);
-      resolve(value);
-    };
-    const settleReject = (error) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timeoutId);
-      reject(error);
-    };
-
     const reader = new FileReader();
-    const timeoutId = setTimeout(() => {
-      try {
-        reader.abort();
-      } catch {
-        // no-op
-      }
-      settleReject(new Error(`File conversion timeout after ${Math.round(timeoutMs / 1000)}s`));
-    }, timeoutMs);
-
     reader.onload = () => {
       // Remove the Data URL prefix -> pure base64
-      const raw = typeof reader.result === 'string' ? reader.result : '';
-      const parts = raw.split(',');
-      if (parts.length < 2 || !parts[1]) {
-        settleReject(new Error('Invalid file payload while converting to base64'));
-        return;
-      }
-      settleResolve(parts[1]);
+      const base64 = reader.result.split(',')[1];
+      resolve(base64);
     };
-    reader.onerror = () => {
-      settleReject(reader.error || new Error('Failed to read file'));
-    };
-    reader.onabort = () => {
-      settleReject(new Error('File read aborted'));
-    };
+    reader.onerror = reject;
     reader.readAsDataURL(file);
   });
 }
@@ -390,8 +357,6 @@ function StepAssets({ credentials, onSubmit }) {
 
 
 function ProcessingScreen({ registrationData }) {
-  const AGENT_PHASE_TIMEOUT_MS = 240000;
-
   const { signUp } = useAuth();
   const navigate   = useNavigate();
   const hasStartedRef = useRef(false);
@@ -452,34 +417,23 @@ function ProcessingScreen({ registrationData }) {
         // Mark that we're past auth phase so rollback can trigger for Phase 2+ failures
         updatePhase('processing');
         addLog('[SYSTEM] Converting assets for processing...');
-        let conversionPulse = 10;
-        const conversionPulseId = setInterval(() => {
-          if (cancelled) return;
-          conversionPulse = Math.min(14, conversionPulse + 1);
-          setTotalPercent(conversionPulse);
-        }, 1000);
-
         const [resumeBase64, photoBase64] = await Promise.all([
           fileToBase64(resume),
           fileToBase64(photo),
         ]);
-        clearInterval(conversionPulseId);
         setTotalPercent(15);
 
         // - Phase 3: Agent Alpha + Beta (parallel) -
         updatePhase('agents');
         setAlphaStatus('active');
         setAlphaMessage('Initializing profile extraction protocol ...');
-        setAlphaProgress(5);
         addLog('[AGENT ALPHA] Profile extraction protocol starting...');
         setBetaStatus('active');
         setBetaMessage('Initializing avatar generation protocol ...');
-        setBetaProgress(5);
         addLog('[AGENT BETA] Avatar generation protocol starting...');
-        addLog('[SYSTEM] Agent pipelines connected. Awaiting Gemini responses...');
 
-        let alphaPercentLocal = 5;
-        let betaPercentLocal = 5;
+        let alphaPercentLocal = 0;
+        let betaPercentLocal = 0;
 
         const syncCombinedProgress = () => {
           // Keep 15..95 for parallel agents; finalization pushes to 100.
@@ -487,49 +441,20 @@ function ProcessingScreen({ registrationData }) {
           setTotalPercent(15 + Math.round(combined * 0.8));
         };
 
-        syncCombinedProgress();
-
         const runAgentWithSelfRetry = async ({
           agentLabel,
           execute,
           setStatus,
           setMessage,
           setProgress,
-          maxAttempts = 5,
           onCompletedMessage,
           onCompletedLog,
         }) => {
           let attempt = 1;
 
           while (!cancelled) {
-            let heartbeatId = null;
-            let elapsedSeconds = 0;
             try {
-              setStatus('active');
-              setMessage(`Attempt ${attempt} in progress...`);
-              addLog(`[${agentLabel}] Attempt ${attempt} started.`, true);
-
-              heartbeatId = setInterval(() => {
-                if (cancelled) return;
-                elapsedSeconds += 3;
-                setMessage(`Attempt ${attempt} running... ${elapsedSeconds}s elapsed`);
-                setProgress((prev) => {
-                  const next = prev < 85 ? prev + 1 : prev;
-                  if (agentLabel === 'AGENT ALPHA') {
-                    alphaPercentLocal = next;
-                  } else if (agentLabel === 'AGENT BETA') {
-                    betaPercentLocal = next;
-                  }
-                  syncCombinedProgress();
-                  return next;
-                });
-              }, 3000);
-
               const value = await execute(attempt);
-
-              if (heartbeatId) {
-                clearInterval(heartbeatId);
-              }
 
               if (cancelled) {
                 throw new Error('Registration cancelled');
@@ -543,22 +468,11 @@ function ProcessingScreen({ registrationData }) {
 
               return value;
             } catch (reason) {
-              if (heartbeatId) {
-                clearInterval(heartbeatId);
-              }
-
               if (cancelled) {
                 throw reason;
               }
 
               const errorText = reason?.message || `${agentLabel} failed`;
-              if (attempt >= maxAttempts) {
-                setStatus('failed');
-                setMessage(`Failed after ${maxAttempts} attempts.`);
-                addLog(`[${agentLabel}] Failed after ${maxAttempts} attempts: ${errorText}`, true);
-                throw new Error(`${agentLabel} failed after ${maxAttempts} attempts: ${errorText}`);
-              }
-
               const delayMs = Math.min(30000, 1500 * Math.pow(2, Math.max(0, attempt - 1)));
               const waitSecs = Math.max(1, Math.round(delayMs / 1000));
 
@@ -583,8 +497,7 @@ function ProcessingScreen({ registrationData }) {
           throw new Error('Registration cancelled');
         };
 
-        const [profile, avatarDataUrl] = await Promise.race([
-          Promise.all([
+        const [profile, avatarDataUrl] = await Promise.all([
           runAgentWithSelfRetry({
             agentLabel: 'AGENT ALPHA',
             execute: (attempt) => runProfileAgent({
@@ -604,7 +517,6 @@ function ProcessingScreen({ registrationData }) {
             setStatus: setAlphaStatus,
             setMessage: setAlphaMessage,
             setProgress: setAlphaProgress,
-            maxAttempts: 5,
             onCompletedMessage: 'Profile extraction complete.',
             onCompletedLog: '[AGENT ALPHA] Profile data extracted [OK]',
           }),
@@ -625,15 +537,8 @@ function ProcessingScreen({ registrationData }) {
             setStatus: setBetaStatus,
             setMessage: setBetaMessage,
             setProgress: setBetaProgress,
-            maxAttempts: 5,
             onCompletedMessage: 'Avatar generation complete.',
             onCompletedLog: '[AGENT BETA] RPG avatar generated ...',
-          }),
-          ]),
-          new Promise((_, reject) => {
-            setTimeout(() => {
-              reject(new Error(`Agent processing timeout after ${Math.round(AGENT_PHASE_TIMEOUT_MS / 1000)}s`));
-            }, AGENT_PHASE_TIMEOUT_MS);
           }),
         ]);
 
@@ -672,16 +577,6 @@ function ProcessingScreen({ registrationData }) {
           
           const errorMsg = err.message || 'Unknown error occurred during registration';
 
-          if (currentPhase !== 'agents') {
-            const blockedBy = currentPhase === 'auth'
-              ? 'Did not start: account setup failed.'
-              : 'Did not start: asset processing failed.';
-            setAlphaStatus('failed');
-            setBetaStatus('failed');
-            setAlphaMessage(blockedBy);
-            setBetaMessage(blockedBy);
-          }
-
           // Rollback username reservation if we got past Phase 1 auth
           // This includes Phase 2 (file conversion) and Phase 3 (agents)
           if (currentPhase !== 'auth') {
@@ -702,8 +597,6 @@ function ProcessingScreen({ registrationData }) {
           let userMessage = errorMsg;
           if (errorMsg.includes('Profile Extraction Failed')) {
             userMessage = '⚠ Profile Extraction Failed\n\nYour resume could not be processed. This may be due to:\n- Invalid resume format\n- API quota exceeded\n- Network issues\n\nPlease try again or contact support.';
-          } else if (errorMsg.toLowerCase().includes('timeout')) {
-            userMessage = '⚠ Processing timeout\n\nOne of the AI agent operations took too long and was stopped automatically.\n\nPlease try again.';
           } else if (errorMsg.includes('quota')) {
             userMessage = '⚠ API quota exceeded\n\nThe AI service is temporarily unavailable. Please try again in a few minutes.';
           } else if (errorMsg.includes('localStorage')) {
