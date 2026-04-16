@@ -6,13 +6,13 @@ import { runProfileAgent, runAvatarAgent } from '../utils/geminiAgents';
 import { saveUserProfile, saveUserAvatar, rollbackUserRegistration } from '../utils/userStorage';
 import { SystemCursor } from '../components/layout/SystemCursor';
 
-// - Helpers -
+// — Helpers —
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
-      // Remove the Data URL prefix -> pure base64
+      // Remove the Data URL prefix → pure base64
       const base64 = reader.result.split(',')[1];
       resolve(base64);
     };
@@ -24,17 +24,16 @@ function fileToBase64(file) {
 function getPasswordStrength(pw) {
   if (!pw) return { level: 0, label: '', class: '' };
   let score = 0;
-  if (pw.length >= 8)                    score++;
-  if (/[A-Z]/.test(pw))                  score++;
-  if (/\d/.test(pw))                     score++;
-  if (/[^A-Za-z0-9]/.test(pw))           score++;
-
-  if (score <= 1) return { level: score, label: 'WEAK', class: 'weak' };
+  if (pw.length >= 8)           score++;
+  if (/[A-Z]/.test(pw))         score++;
+  if (/\d/.test(pw))            score++;
+  if (/[^A-Za-z0-9]/.test(pw))  score++;
+  if (score <= 1) return { level: score, label: 'WEAK',   class: 'weak' };
   if (score <= 2) return { level: score, label: 'MEDIUM', class: 'medium' };
-  return          { level: score, label: 'STRONG', class: 'strong' };
+  return              { level: score, label: 'STRONG', class: 'strong' };
 }
 
-// - Step 1: Credentials -
+// — Step 1: Credentials —
 
 function StepCredentials({ onNext }) {
   const { checkUsername } = useAuth();
@@ -95,7 +94,7 @@ function StepCredentials({ onNext }) {
 
   const inputClass = (status) =>
     status === 'available' ? 'register-input input-valid' :
-    status === 'taken' ? 'register-input input-error' :
+    status === 'taken'     ? 'register-input input-error' :
     'register-input';
 
   return (
@@ -109,7 +108,7 @@ function StepCredentials({ onNext }) {
         <span className="register-eyebrow">STEP 01 OF 02</span>
         <h2 className="register-title">CREATE CREDENTIALS</h2>
         <p className="register-subtitle">
-          Choose a unique username - this becomes your portfolio URL:<br/>
+          Choose a unique username — this becomes your portfolio URL:<br/>
           <span style={{ color: 'var(--color-system-400)', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
             codeaether.vercel.app/<strong>{username || 'your-name'}</strong>
           </span>
@@ -160,9 +159,7 @@ function StepCredentials({ onNext }) {
                 {[1, 2, 3, 4].map(i => (
                   <div
                     key={i}
-                    className={`strength-bar ${
-                      i <= strength.level ? strength.class : ''
-                    }`}
+                    className={`strength-bar ${i <= strength.level ? strength.class : ''}`}
                   />
                 ))}
               </div>
@@ -213,21 +210,20 @@ function StepCredentials({ onNext }) {
   );
 }
 
-// - Step 2: Profile Assets -
+// — Step 2: Profile Assets —
 
 function StepAssets({ credentials, onSubmit }) {
-  const [photo,       setPhoto]       = useState(null);
+  const [photo,        setPhoto]        = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
-  const [resume,      setResume]      = useState(null);
-  const [linkedin,    setLinkedin]    = useState('');
-  const [formError,   setFormError]   = useState('');
+  const [resume,       setResume]       = useState(null);
+  const [linkedin,     setLinkedin]     = useState('');
+  const [formError,    setFormError]    = useState('');
 
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setPhoto(file);
-    const url = URL.createObjectURL(file);
-    setPhotoPreview(url);
+    setPhotoPreview(URL.createObjectURL(file));
   };
 
   const handleResumeChange = (e) => {
@@ -293,7 +289,7 @@ function StepAssets({ credentials, onSubmit }) {
               <>
                 <div className="file-upload-icon">📂</div>
                 <span className="file-upload-label">CLICK TO UPLOAD PHOTO</span>
-                <span className="file-upload-hint">JPG, PNG or WEBP used for RPG avatar generation</span>
+                <span className="file-upload-hint">JPG, PNG or WEBP — used for RPG avatar generation</span>
               </>
             )}
           </div>
@@ -364,15 +360,15 @@ function ProcessingScreen({ registrationData }) {
 
   const [alphaProgress, setAlphaProgress] = useState(0);
   const [alphaMessage,  setAlphaMessage]  = useState('Queued');
-  const [alphaStatus,   setAlphaStatus]   = useState('pending'); // pending | active | completed | failed
+  const [alphaStatus,   setAlphaStatus]   = useState('pending');
 
   const [betaProgress,  setBetaProgress]  = useState(0);
   const [betaMessage,   setBetaMessage]   = useState('Queued');
-  const [betaStatus,    setBetaStatus]    = useState('pending'); // pending | active | completed | failed
+  const [betaStatus,    setBetaStatus]    = useState('pending');
 
   const [totalPercent,  setTotalPercent]  = useState(0);
   const [logs,          setLogs]          = useState([{ id: 0, text: '[SYSTEM] Registration protocol initiated...', highlight: false }]);
-  const [phase,         setPhase]         = useState('auth'); // auth | agents | finalizing | done | error
+  const [phase,         setPhase]         = useState('auth');
   const [errorMessage,  setErrorMessage]  = useState('');
   const [errorDetails,  setErrorDetails]  = useState('');
 
@@ -381,11 +377,8 @@ function ProcessingScreen({ registrationData }) {
     setLogs(prev => [...prev.slice(-3), { id: logId, text: line, highlight }]);
   }, []);
 
-
   useEffect(() => {
-    if (hasStartedRef.current) {
-      return;
-    }
+    if (hasStartedRef.current) return;
     hasStartedRef.current = true;
 
     let cancelled = false;
@@ -400,7 +393,7 @@ function ProcessingScreen({ registrationData }) {
       const { username, password, photo, resume, linkedin } = registrationData;
 
       try {
-        // - Phase 1: Sign Up (JWT + localStorage) -
+        // — Phase 1: Sign Up (JWT + localStorage) —
         updatePhase('auth');
         addLog('[AUTH] Creating account...');
         setTotalPercent(5);
@@ -410,11 +403,10 @@ function ProcessingScreen({ registrationData }) {
           addLog(`[ERROR] ${signUpResult.error}`, true);
           throw new Error(signUpResult.error);
         }
-        addLog('[AUTH] Account created. JWT issued ...', true);
+        addLog('[AUTH] Account created. JWT issued.', true);
         setTotalPercent(10);
 
-        // - Phase 2: Convert files to base64 -
-        // Mark that we're past auth phase so rollback can trigger for Phase 2+ failures
+        // — Phase 2: Convert files to base64 —
         updatePhase('processing');
         addLog('[SYSTEM] Converting assets for processing...');
         const [resumeBase64, photoBase64] = await Promise.all([
@@ -423,23 +415,11 @@ function ProcessingScreen({ registrationData }) {
         ]);
         setTotalPercent(15);
 
-        // - Phase 3: Agent Alpha + Beta (parallel) -
+        // — Phase 3: Agent Alpha — profile extraction —
         updatePhase('agents');
         setAlphaStatus('active');
-        setAlphaMessage('Initializing profile extraction protocol ...');
+        setAlphaMessage('Initializing profile extraction protocol...');
         addLog('[AGENT ALPHA] Profile extraction protocol starting...');
-        setBetaStatus('active');
-        setBetaMessage('Initializing avatar generation protocol ...');
-        addLog('[AGENT BETA] Avatar generation protocol starting...');
-
-        let alphaPercentLocal = 0;
-        let betaPercentLocal = 0;
-
-        const syncCombinedProgress = () => {
-          // Keep 15..95 for parallel agents; finalization pushes to 100.
-          const combined = (alphaPercentLocal + betaPercentLocal) / 2;
-          setTotalPercent(15 + Math.round(combined * 0.8));
-        };
 
         const runAgentWithSelfRetry = async ({
           agentLabel,
@@ -464,7 +444,6 @@ function ProcessingScreen({ registrationData }) {
               setProgress(100);
               setMessage(onCompletedMessage);
               addLog(onCompletedLog, true);
-              syncCombinedProgress();
 
               return value;
             } catch (reason) {
@@ -497,75 +476,79 @@ function ProcessingScreen({ registrationData }) {
           throw new Error('Registration cancelled');
         };
 
-        const [profile, avatarDataUrl] = await Promise.all([
-          runAgentWithSelfRetry({
-            agentLabel: 'AGENT ALPHA',
-            execute: (attempt) => runProfileAgent({
-              resumeBase64,
-              resumeMimeType: resume.type || 'application/pdf',
-              linkedinUrl: linkedin,
-              username,
-              onProgress: ({ message, percent }) => {
-                if (cancelled) return;
-                alphaPercentLocal = percent;
-                setAlphaProgress(percent);
-                setAlphaMessage(attempt > 1 ? `Attempt ${attempt}: ${message}` : message);
-                syncCombinedProgress();
-                addLog(`[ALPHA] ${message}`);
-              },
-            }),
-            setStatus: setAlphaStatus,
-            setMessage: setAlphaMessage,
-            setProgress: setAlphaProgress,
-            onCompletedMessage: 'Profile extraction complete.',
-            onCompletedLog: '[AGENT ALPHA] Profile data extracted [OK]',
+        const profile = await runAgentWithSelfRetry({
+          agentLabel: 'AGENT ALPHA',
+          execute: (attempt) => runProfileAgent({
+            resumeBase64,
+            resumeMimeType: resume.type || 'application/pdf',
+            linkedinUrl: linkedin,
+            username,
+            onProgress: ({ message, percent }) => {
+              if (cancelled) return;
+              setAlphaProgress(percent);
+              setAlphaMessage(attempt > 1 ? `Attempt ${attempt}: ${message}` : message);
+              setTotalPercent(15 + Math.round(percent * 0.4));
+              addLog(`[ALPHA] ${message}`);
+            },
           }),
-          runAgentWithSelfRetry({
-            agentLabel: 'AGENT BETA',
-            execute: (attempt) => runAvatarAgent({
-              photoBase64,
-              photoMimeType: photo.type || 'image/jpeg',
-              onProgress: ({ message, percent }) => {
-                if (cancelled) return;
-                betaPercentLocal = percent;
-                setBetaProgress(percent);
-                setBetaMessage(attempt > 1 ? `Attempt ${attempt}: ${message}` : message);
-                syncCombinedProgress();
-                addLog(`[BETA] ${message}`);
-              },
-            }),
-            setStatus: setBetaStatus,
-            setMessage: setBetaMessage,
-            setProgress: setBetaProgress,
-            onCompletedMessage: 'Avatar generation complete.',
-            onCompletedLog: '[AGENT BETA] RPG avatar generated ...',
+          setStatus: setAlphaStatus,
+          setMessage: setAlphaMessage,
+          setProgress: setAlphaProgress,
+          onCompletedMessage: 'Profile extraction complete.',
+          onCompletedLog: '[AGENT ALPHA] Profile data extracted [OK]',
+        });
+
+        if (cancelled) return;
+        setTotalPercent(55);
+
+        // — Phase 4: Agent Beta — avatar generation —
+        setBetaStatus('active');
+        setBetaMessage('Initializing avatar generation protocol...');
+        addLog('[AGENT BETA] Avatar generation protocol starting...');
+
+        const avatarDataUrl = await runAgentWithSelfRetry({
+          agentLabel: 'AGENT BETA',
+          execute: (attempt) => runAvatarAgent({
+            photoBase64,
+            photoMimeType: photo.type || 'image/jpeg',
+            onProgress: ({ message, percent }) => {
+              if (cancelled) return;
+              setBetaProgress(percent);
+              setBetaMessage(attempt > 1 ? `Attempt ${attempt}: ${message}` : message);
+              setTotalPercent(55 + Math.round(percent * 0.4));
+              addLog(`[BETA] ${message}`);
+            },
           }),
-        ]);
+          setStatus: setBetaStatus,
+          setMessage: setBetaMessage,
+          setProgress: setBetaProgress,
+          onCompletedMessage: 'Avatar generation complete.',
+          onCompletedLog: '[AGENT BETA] RPG avatar generated.',
+        });
 
         if (cancelled) return;
 
         profile.meta.avatarUrl = avatarDataUrl;
 
-        // Save profile and avatar to storage
         try {
           await Promise.all([
             Promise.resolve(saveUserProfile(username, profile)),
             saveUserAvatar(username, avatarDataUrl),
           ]);
-          addLog('[AGENT BETA] RPG avatar saved ...', true);
-          addLog('[SYSTEM] Complete profile saved to storage ...', true);
+          addLog('[AGENT BETA] RPG avatar saved.', true);
+          addLog('[SYSTEM] Complete profile saved to storage.', true);
         } catch (storageErr) {
           throw new Error(`Failed to save profile: ${storageErr.message}`);
         }
         setTotalPercent(97);
 
-        // - Phase 4: Finalize -
+        // — Phase 5: Finalize —
         updatePhase('finalizing');
         addLog('[SYSTEM] Finalizing hunter profile...');
         await new Promise(r => setTimeout(r, 800));
         setTotalPercent(100);
 
-        addLog('[SYSTEM] PROFILE ONLINE - ACCESS GRANTED ...', true);
+        addLog('[SYSTEM] PROFILE ONLINE — ACCESS GRANTED.', true);
         updatePhase('done');
 
         await new Promise(r => setTimeout(r, 1000));
@@ -574,11 +557,9 @@ function ProcessingScreen({ registrationData }) {
       } catch (err) {
         if (!cancelled) {
           console.error('[ProcessingScreen]', err);
-          
+
           const errorMsg = err.message || 'Unknown error occurred during registration';
 
-          // Rollback username reservation if we got past Phase 1 auth
-          // This includes Phase 2 (file conversion) and Phase 3 (agents)
           if (currentPhase !== 'auth') {
             try {
               rollbackUserRegistration(registrationData?.username);
@@ -592,19 +573,18 @@ function ProcessingScreen({ registrationData }) {
             setAlphaStatus(prev => (prev === 'active' || prev === 'pending' ? 'failed' : prev));
             setBetaStatus(prev => (prev === 'active' || prev === 'pending' ? 'failed' : prev));
           }
-          
-          // Distinguish between different error types for user guidance
+
           let userMessage = errorMsg;
           if (errorMsg.includes('Profile Extraction Failed')) {
-            userMessage = '⚠ Profile Extraction Failed\n\nYour resume could not be processed. This may be due to:\n- Invalid resume format\n- API quota exceeded\n- Network issues\n\nPlease try again or contact support.';
+            userMessage = '⚠️ Profile Extraction Failed\n\nYour resume could not be processed. This may be due to:\n• Invalid resume format\n• API quota exceeded\n• Network issues\n\nPlease try again.';
           } else if (errorMsg.includes('quota')) {
-            userMessage = '⚠ API quota exceeded\n\nThe AI service is temporarily unavailable. Please try again in a few minutes.';
+            userMessage = '⚠️ API quota exceeded\n\nThe AI service is temporarily unavailable. Please try again in a few minutes.';
           } else if (errorMsg.includes('localStorage')) {
-            userMessage = '⚠ Storage error\n\nCould not save profile to browser storage. This may happen in incognito mode.\n\nPlease use regular browsing mode and try again.';
+            userMessage = '⚠️ Storage error\n\nCould not save profile to browser storage. Try regular (non-incognito) mode.';
           } else if (errorMsg.includes('network') || errorMsg.includes('fetch')) {
-            userMessage = '⚠ Network error\n\nCheck your internet connection and try again.';
+            userMessage = '⚠️ Network error\n\nCheck your internet connection and try again.';
           }
-          
+
           updatePhase('error');
           setErrorMessage(userMessage);
           setErrorDetails(errorMsg);
@@ -619,13 +599,17 @@ function ProcessingScreen({ registrationData }) {
   }, []);
 
   const statusLabel = {
-    auth:        'AUTHENTICATING...',
-    processing:  'PROCESSING ASSETS...',
-    agents:      'AGENTS RUNNING IN PARALLEL...',
-    finalizing:  'FINALIZING PROFILE...',
-    done:        'REGISTRATION COMPLETE ...',
-    error:       'REGISTRATION FAILED',
+    auth:       'AUTHENTICATING...',
+    processing: 'PROCESSING ASSETS...',
+    agents:     'RUNNING AI AGENTS...',
+    finalizing: 'FINALIZING PROFILE...',
+    done:       'REGISTRATION COMPLETE',
+    error:      'REGISTRATION FAILED',
   }[phase] ?? '...';
+
+  const agentIcon  = (s) => s === 'completed' ? '✓' : s === 'active' ? '▸' : s === 'failed' ? '✕' : '○';
+  const agentBadge = (s) => s === 'completed' ? 'done' : s === 'active' ? 'running' : s === 'failed' ? 'failed' : 'pending';
+  const agentLabel = (s) => s === 'completed' ? 'DONE' : s === 'active' ? 'RUNNING' : s === 'failed' ? 'FAILED' : 'PENDING';
 
   return (
     <motion.div
@@ -633,7 +617,6 @@ function ProcessingScreen({ registrationData }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      {/* Ambient orbs */}
       <div className="processing-screen-bg" aria-hidden="true">
         <div className="processing-orb processing-orb--a" />
         <div className="processing-orb processing-orb--b" />
@@ -646,10 +629,8 @@ function ProcessingScreen({ registrationData }) {
         </h1>
         <p className="processing-subtitle">{statusLabel}</p>
 
-        {/* Overall percent */}
         <div className="processing-percent">{totalPercent}%</div>
 
-        {/* Overall progress bar */}
         <div className="processing-progress-outer">
           <div
             className="processing-progress-fill"
@@ -658,7 +639,6 @@ function ProcessingScreen({ registrationData }) {
           <div className="processing-progress-shimmer" />
         </div>
 
-        {/* Error display (if registration failed) */}
         {phase === 'error' && (
           <motion.div
             className="processing-error"
@@ -694,18 +674,14 @@ function ProcessingScreen({ registrationData }) {
           </motion.div>
         )}
 
-        {/* Agent panels */}
-
         <div className="processing-agents">
-          {/* Agent Alpha */}
           <div className={`agent-panel ${alphaStatus}`}>
             <div className="agent-panel-header">
               <span className="agent-panel-name">
-                {alphaStatus === 'completed' ? '✓' : alphaStatus === 'active' ? '!' : alphaStatus === 'failed' ? '✕' : '○'}&nbsp;
-                AGENT ALPHA - PROFILE EXTRACTOR
+                {agentIcon(alphaStatus)}&nbsp;AGENT ALPHA — PROFILE EXTRACTOR
               </span>
-              <span className={`agent-status-badge ${alphaStatus === 'completed' ? 'done' : alphaStatus === 'active' ? 'running' : alphaStatus === 'failed' ? 'failed' : 'pending'}`}>
-                {alphaStatus === 'completed' ? 'DONE' : alphaStatus === 'active' ? 'RUNNING' : alphaStatus === 'failed' ? 'FAILED' : 'PENDING'}
+              <span className={`agent-status-badge ${agentBadge(alphaStatus)}`}>
+                {agentLabel(alphaStatus)}
               </span>
             </div>
             <div className="agent-message">{alphaMessage}</div>
@@ -717,15 +693,13 @@ function ProcessingScreen({ registrationData }) {
             </div>
           </div>
 
-          {/* Agent Beta */}
           <div className={`agent-panel ${betaStatus}`}>
             <div className="agent-panel-header">
               <span className="agent-panel-name">
-                {betaStatus === 'completed' ? '✓' : betaStatus === 'active' ? '!' : betaStatus === 'failed' ? '×' : '•'}&nbsp;
-                AGENT BETA - RPG AVATAR GENERATOR
+                {agentIcon(betaStatus)}&nbsp;AGENT BETA — RPG AVATAR GENERATOR
               </span>
-              <span className={`agent-status-badge ${betaStatus === 'completed' ? 'done' : betaStatus === 'active' ? 'running' : betaStatus === 'failed' ? 'failed' : 'pending'}`}>
-                {betaStatus === 'completed' ? 'DONE' : betaStatus === 'active' ? 'RUNNING' : betaStatus === 'failed' ? 'FAILED' : 'PENDING'}
+              <span className={`agent-status-badge ${agentBadge(betaStatus)}`}>
+                {agentLabel(betaStatus)}
               </span>
             </div>
             <div className="agent-message">{betaMessage}</div>
@@ -738,7 +712,6 @@ function ProcessingScreen({ registrationData }) {
           </div>
         </div>
 
-        {/* Log stream */}
         <div className="processing-log" aria-live="polite">
           {logs.map((log) => (
             <span
@@ -755,7 +728,7 @@ function ProcessingScreen({ registrationData }) {
   );
 }
 
-// - Step Indicator -
+// — Step Indicator —
 
 function StepBar({ currentStep }) {
   return (
@@ -777,14 +750,14 @@ function StepBar({ currentStep }) {
   );
 }
 
-// - Main Register Page -
+// — Main Register Page —
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const [step,               setStep]               = useState(1);   // 1 | 2
-  const [credentials,        setCredentials]        = useState(null);
-  const [registrationData,   setRegistrationData]   = useState(null);
-  const [showProcessing,     setShowProcessing]     = useState(false);
+  const [step,             setStep]             = useState(1);
+  const [credentials,      setCredentials]      = useState(null);
+  const [registrationData, setRegistrationData] = useState(null);
+  const [showProcessing,   setShowProcessing]   = useState(false);
 
   const handleStep1 = useCallback((creds) => {
     setCredentials(creds);
@@ -800,14 +773,12 @@ export default function RegisterPage() {
     <>
       <SystemCursor />
 
-      {/* Background */}
       <div className="register-bg" aria-hidden="true">
         <div className="register-orb register-orb--a" />
         <div className="register-orb register-orb--b" />
       </div>
       <div className="landing-grid" aria-hidden="true" />
 
-      {/* Top bar */}
       <header className="register-topbar">
         <a href="/" className="landing-logo" aria-label="CodeAether home" style={{ textDecoration: 'none' }}>
           <div className="landing-logo-mark">CA</div>
@@ -822,7 +793,6 @@ export default function RegisterPage() {
         </button>
       </header>
 
-      {/* Main card */}
       <div className="register-root">
         <AnimatePresence mode="wait">
           {showProcessing ? (
@@ -839,10 +809,8 @@ export default function RegisterPage() {
               exit={{ opacity: 0, y: -24 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              {/* Step indicator */}
               <StepBar currentStep={step} />
 
-              {/* Steps */}
               <AnimatePresence mode="wait">
                 {step === 1 && <StepCredentials key="s1" onNext={handleStep1} />}
                 {step === 2 && <StepAssets key="s2" credentials={credentials} onSubmit={handleStep2} />}
@@ -854,5 +822,3 @@ export default function RegisterPage() {
     </>
   );
 }
-
-
