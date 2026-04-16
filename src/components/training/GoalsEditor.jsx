@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHunterStore } from '../../stores/hunterStore';
 import { hunterStorage } from '../../utils/training/hunterStorage';
+import { runBadgeAgent } from '../../utils/training/badgeAgent';
 
 const CATEGORIES = [
   { key: 'technology', label: 'TECHNOLOGIES', placeholder: 'e.g., Kubernetes, TypeScript' },
@@ -70,48 +71,30 @@ export function GoalsEditor({ username: _username }) {
     setAgentRunning(true);
 
     try {
-      const res = await fetch('/api/agent/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: profile.username,
-          level: profile.level,
-          class: profile.class,
-          goals: goals.filter(g => g.is_active),
-          trigger: 'goals_changed',
-        }),
+      const generatedBadges = await runBadgeAgent({
+        profile,
+        goals: goals.filter(g => g.is_active),
       });
 
-      const data = await res.json();
+      hunterStorage.saveHunterBadges(profile.username, generatedBadges);
+      setBadges(generatedBadges);
 
-      if (data.success) {
-        if (Array.isArray(data.badges)) {
-          hunterStorage.saveHunterBadges(profile.username, data.badges);
-          setBadges(data.badges);
-        }
+      hunterStorage.recordAgentRun(profile.username, {
+        trigger: 'goals_changed',
+        badgesGenerated: generatedBadges.length,
+      });
 
-        // Update last agent run
-        hunterStorage.recordAgentRun(profile.username, {
-          trigger: 'goals_changed',
-          badgesGenerated: data.badgesGenerated || 0,
-        });
-
-        addToast({
-          type: 'success',
-          message: `⚡ System updated — ${data.badgesGenerated || 0} new missions generated`,
-        });
-      } else {
-        addToast({
-          type: 'error',
-          message: data.error || 'Agent failed. Try again in a moment.',
-        });
-      }
+      addToast({
+        type: 'success',
+        message: `⚡ System updated — ${generatedBadges.length} new missions generated`,
+      });
     } catch (err) {
       console.error('Agent error:', err);
       addToast({
         type: 'error',
-        message: 'Network error. Please retry.',
+        message: 'Mission generation failed. Please retry.',
       });
+      setIsDirty(true);
     } finally {
       setSaving(false);
       setAgentRunning(false);

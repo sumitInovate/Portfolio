@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { SignJWT, jwtVerify } from 'jose';
 import {
   isUsernameTaken,
@@ -31,7 +31,7 @@ const PBKDF2_ITERS  = 100_000;
 function hexToBytes(hex) {
   const bytes = new Uint8Array(hex.length / 2);
   for (let i = 0; i < bytes.length; i++) {
-    bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+    bytes[i] = Number.parseInt(hex.slice(i * 2, i * 2 + 2), 16);
   }
   return bytes;
 }
@@ -97,7 +97,8 @@ function setCookie(name, value, days = 30) {
 }
 
 function getCookie(name) {
-  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  const cookiePattern = new RegExp(`(?:^|; )${name}=([^;]*)`);
+  const match = cookiePattern.exec(document.cookie);
   return match ? decodeURIComponent(match[1]) : null;
 }
 
@@ -263,18 +264,20 @@ export function AuthProvider({ children }) {
     setAuthError(null);
   }, []);
 
+  const contextValue = useMemo(() => ({
+    authUser,
+    isAuthenticated: !!authUser,
+    authError,
+    isLoading,
+    signIn,
+    signUp,
+    signOut,
+    checkUsername,
+  }), [authUser, authError, isLoading, signIn, signUp, signOut, checkUsername]);
+
   return (
     <AuthContext.Provider
-      value={{
-        authUser,
-        isAuthenticated: !!authUser,
-        authError,
-        isLoading,
-        signIn,
-        signUp,
-        signOut,
-        checkUsername,
-      }}
+      value={contextValue}
     >
       {children}
     </AuthContext.Provider>
