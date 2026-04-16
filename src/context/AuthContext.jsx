@@ -108,7 +108,8 @@ function deleteCookie(name) {
 // ─── Seeded users (no password required — verify by existence) ────────────────
 
 const SEEDED_USERS = {
-  'sumit-thakur': { password: 'hunter2025' },
+  // Boilerplate demo user accessible via /demo route (no auth needed)
+  'boilerplate': { password: 'demo' },
 };
 
 // ─── Provider ─────────────────────────────────────────────────────────────────

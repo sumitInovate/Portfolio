@@ -90,7 +90,7 @@ function AuthModal({ onClose }) {
             <input
               id="auth-username"
               className="form-input"
-              placeholder="e.g. sumit-thakur"
+              placeholder="e.g. john-doe"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"

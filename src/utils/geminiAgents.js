@@ -1,117 +1,73 @@
+import { validateAndNormalizeProfile } from './schemaValidator.js';
+import { getErrorMessage, retryWithBackoff } from './geminiAgentShared.js';
+
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const PROFILE_ENDPOINT = `${API_BASE_URL}/api/ai/generate-profile`;
+const AVATAR_ENDPOINT = `${API_BASE_URL}/api/ai/generate-avatar`;
+
 /**
- * geminiAgents.js — CodeAether AI Agents
- *
- * Agent Alpha: Profile Agent
- *   Takes resume (PDF/DOCX as base64) + optional LinkedIn URL
- *   → Returns a full UserProfile JSON matching our schema
- *
- * Agent Beta: Avatar Agent
- *   Takes a user photo (as base64)
- *   → Returns an RPG-stylized image (base64 PNG)
- *
- * Both fall back gracefully if no API key is configured.
+ * Keep sending lightweight progress updates while waiting on a long async task.
  */
+async function withProgressHeartbeat({
+  task,
+  phase,
+  progress,
+  startPercent,
+  capPercent,
+  message,
+  intervalMs = 3000,
+}) {
+  let percent = startPercent;
+  let elapsed = 0;
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+  const timerId = setInterval(() => {
+    elapsed += Math.round(intervalMs / 1000);
+    percent = Math.min(capPercent, percent + 1);
+    progress(phase, `${message} (${elapsed}s)`, percent);
+  }, intervalMs);
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-
-// ─── Profile schema prompt context ──────────────────────────────────────────
-
-const PROFILE_SCHEMA = `
-{
-  "meta": {
-    "username": "<slug>",
-    "displayName": "<Full Name>",
-    "tagline": "<Short tagline ≤80 chars>",
-    "avatarUrl": "/sumit_avatar.png",
-    "status": "available",
-    "theme": "solo-leveling"
-  },
-  "hero": {
-    "alertText": "<Exciting RPG announcement like 'A NEW HUNTER HAS AWAKENED!'>",
-    "firstName": "<FIRST NAME UPPERCASE>",
-    "lastName": "<LAST NAME UPPERCASE>",
-    "role": "<Primary job title>",
-    "stack": "<Top 4-5 technologies separated by · >",
-    "rank": "<E/D/C/B/A/S based on seniority: E=student, S=senior 5+ years>",
-    "level": <years of experience as number>,
-    "xp": { "current": <random 3000-9500>, "max": 10000 },
-    "location": "<City, Country>"
-  },
-  "about": {
-    "profileFields": [
-      { "key": "NAME", "val": "<Full Name>" },
-      { "key": "CLASS", "val": "<Primary role>" },
-      { "key": "LEVEL", "val": "<X+ Years Experience>" },
-      { "key": "GUILD", "val": "<Current Company>" },
-      { "key": "LOCATION", "val": "<City, Country>" },
-      { "key": "STATUS", "val": "Open to Opportunities" }
-    ],
-    "bio": ["<2 paragraph bio in hunter/RPG tone, 2-3 sentences each>"],
-    "quickStats": [
-      { "val": "<number>", "label": "<Achievement metric>" }
-    ]
-  },
-  "skills": [
-    {
-      "category": "BACKEND",
-      "icon": "⚔",
-      "skills": [
-        { "name": "<tech>", "alias": "<RPG ability name>", "value": <0-100>, "desc": "<1 sentence>" }
-      ]
-    }
-  ],
-  "experience": [
-    {
-      "rank": "A",
-      "guild": "<Company>",
-      "role": "<Job title>",
-      "period": "<Month YYYY – Present or Month YYYY>",
-      "location": "<City, Country>",
-      "status": "ACTIVE",
-      "achievements": ["<bullet point 1>", "<bullet point 2>"]
-    }
-  ],
-  "projects": [
-    {
-      "rank": "A",
-      "title": "<Project Name>",
-      "tech": "<tech1 · tech2 · tech3>",
-      "desc": "<2-3 sentence description>",
-      "classified": false,
-      "link": null
-    }
-  ],
-  "certifications": [
-    { "variant": "gold", "type": "[CERTIFICATION]", "title": "<cert name>", "year": "<year>" }
-  ],
-  "contact": {
-    "email": "",
-    "whatsappNumber": "",
-    "linkedin": "<linkedinUrl or ''>",
-    "location": "<City, Country>"
-  },
-  "github": {
-    "username": "<slug>",
-    "stats": [
-      { "label": "Experience:", "value": "<X+ Years>" },
-      { "label": "Primary Stack:", "value": "<Main tech>" },
-      { "label": "Specialization:", "value": "<domain>" },
-      { "label": "Languages:", "value": "<lang1, lang2>" }
-    ],
-    "heatmapSeed": [0,1,2,1,0,2,3,1,0,2,1,3,0,1,2,0,3,1,2,0,1,2,3,0,1,2,0,1,3,2,1,0,2,1,0,3,2,1,0,2,3,1,0,2,1,3,0,1,2,0,1,2,3,1,0,2,1,0,3,2,1,2,3,0,1,2,0,3,1,2,0,1,3,2,1,0,2,1,0,3,2,1,0,2,3,0,1,2,3,0,1,2,0,1,3,2,1,0,2,1,0,3,2,1,0,2,3,1,0,2,1,3,0,1,2,0,1,2,3,1,0,2,1,0,3,2,1,2,0,3,1,2,0,1,3,0,2,1,0,3,2,1,0,2,1,3,0,2,1,0,3,2,1,0,2,3,1,0,2,1,0,3,2,1,3,0,2,1,0,2,3,1,0,2,1,3,0,1,2,0,3,1,2,0,1,3,0,2,1,0,3,2,1,0,2,1,3,0,1,2,0,1,2,3,1,0,2,1,0,3,2,1,0,2,3,1,0,2,1,3,0,2,1,0,3,2,1,0,2,1,0,3,2,1,0,2,3,1,0,2,1,3,0,1,2,0,3,1,2,0,1,3,0,2,1,0,3,2,1,0,2,1,3,0,1,2,0,1,2,3,1,0,2,1,0,3,2,1,2,3,0,1,2,0,3,1,2,0,1,3,0,2,1,0,3,2,1,0,2,1,3,0,1,2,0,1,2,3,1,0,2,1,0,3,2,1,0,2,3,1,0,2,1,3,0,1,2,0,3,1,2,0,1,3,2,1,0,2,1,0,3,2,1,0,2,3,1,0,2,1,3,0,2,1]
+  try {
+    return await task;
+  } finally {
+    clearInterval(timerId);
   }
-}`;
+}
 
-// ─── Progress callback type ────────────────────────────────────────────────
-// onProgress({ phase: string, message: string, percent: number })
+async function postJson(url, payload, timeoutMs) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data.success === false) {
+      const error = new Error(data.details || data.error || `Request failed with status ${response.status}`);
+      error.statusCode = response.status;
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error(`API request timeout after ${timeoutMs}ms`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
 
 // ─── Agent Alpha: Profile Generator ──────────────────────────────────────────
 
 /**
  * Parse resume + LinkedIn to generate a UserProfile JSON via Gemini.
- * Falls back to a mock profile if no API key is set.
+ * Does not fall back to template profiles on API failure.
  *
  * @param {object} opts
  * @param {string} opts.resumeBase64       — base64-encoded file content
@@ -135,74 +91,48 @@ export async function runProfileAgent({
 
   progress('AGENT_ALPHA', 'Initializing profile extraction protocol…', 5);
 
-  if (!API_KEY || API_KEY === 'your_gemini_api_key_here') {
-    // Simulation mode — no API key available
-    return simulateProfileAgent(username, onProgress);
-  }
-
   try {
-    const genAI  = new GoogleGenerativeAI(API_KEY);
-    const model  = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
     progress('AGENT_ALPHA', 'Uploading resume to analysis pipeline…', 15);
-    await delay(500);
+    progress('AGENT_ALPHA', 'Dispatching profile request to server…', 30);
 
-    const linkedinContext = linkedinUrl
-      ? `The candidate's LinkedIn profile URL is: ${linkedinUrl}. Use this as additional context for their professional history.`
-      : '';
+    const result = await withProgressHeartbeat({
+      task: retryWithBackoff(() => postJson(PROFILE_ENDPOINT, {
+        resumeBase64,
+        resumeMimeType,
+        linkedinUrl,
+        username,
+      }, 65000), 3, 1000, 65000),
+      phase: 'AGENT_ALPHA',
+      progress,
+      startPercent: 30,
+      capPercent: 68,
+      message: 'Analyzing resume with Gemini...',
+    });
 
-    const prompt = `You are an expert profile extraction AI for a developer portfolio platform called CodeAether.
-Analyze the provided resume document and extract ALL professional information.
-${linkedinContext}
-
-The username/slug for this user is: "${username}"
-
-Generate a complete JSON profile in EXACTLY this schema format (no markdown, no code blocks, just raw JSON):
-${PROFILE_SCHEMA}
-
-Rules:
-- Assign RPG rank based on seniority: E (student/intern), D (<1yr), C (1-2yr), B (2-4yr), A (4-6yr), S (6+ yr)
-- Create creative Solo Leveling–style RPG ability names for each skill (e.g. "SHADOW EXTRACTION", "DOMAIN EXPANSION")
-- Write bio in an epic hunter/RPG tone while remaining professional
-- Include ALL work experience found in the resume
-- Include ALL skills mentioned (group into BACKEND, FRONTEND, CLOUD & DEVOPS, TOOLS, etc.)
-- Set avatarUrl to "/sumit_avatar.png" (will be replaced later)
-- Keep contact.email and contact.whatsappNumber empty (privacy)
-- The heatmapSeed array must have EXACTLY 364 numbers, each 0-3
-
-Output ONLY valid JSON, nothing else.`;
-
-    progress('AGENT_ALPHA', 'Scanning resume content with AI…', 30);
-
-    const result = await model.generateContent([
-      {
-        inlineData: {
-          mimeType: resumeMimeType,
-          data: resumeBase64,
-        },
-      },
-      prompt,
-    ]);
-
-    progress('AGENT_ALPHA', 'Parsing extracted profile data…', 70);
-
-    const text     = result.response.text().trim();
-    // Strip markdown code fences if present
-    const jsonText = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-    const profile  = JSON.parse(jsonText);
-
-    // Ensure username is correct
-    profile.meta.username = username;
+    progress('AGENT_ALPHA', 'Validating profile against schema…', 75);
+    const profile = validateAndNormalizeProfile(result.profile);
 
     progress('AGENT_ALPHA', 'Profile data extraction complete ✓', 100);
     return profile;
 
   } catch (err) {
+    // Distinguish between different error types
     console.error('[ProfileAgent] Error:', err);
-    progress('AGENT_ALPHA', 'API unavailable — generating from template…', 80);
-    return simulateProfileAgent(username, onProgress);
+
+    if (err.message?.includes('validation') || err.message?.includes('schema')) {
+      // Validation error — user needs to fix resume
+      const errorMsg = getErrorMessage(err);
+      progress('AGENT_ALPHA', `Validation failed: ${errorMsg}`, 100);
+      throw new Error(`Profile Extraction Failed: ${errorMsg}`);
+    }
+
+    // Transient/API error — surface the failure so caller can retry.
+    const errorMsg = getErrorMessage(err);
+    progress('AGENT_ALPHA', errorMsg, 100);
+    throw new Error(`Profile Extraction Failed: ${errorMsg}`);
   }
 }
+
 
 // ─── Agent Beta: RPG Avatar Generator ────────────────────────────────────────
 
@@ -223,100 +153,45 @@ export async function runAvatarAgent({ photoBase64, photoMimeType, onProgress })
 
   progress('AGENT_BETA', 'Initializing avatar generation protocol…', 5);
 
-  if (!API_KEY || API_KEY === 'your_gemini_api_key_here') {
-    return simulateAvatarAgent(photoBase64, photoMimeType, onProgress);
-  }
-
   try {
-    const genAI = new GoogleGenerativeAI(API_KEY);
-
     progress('AGENT_BETA', 'Loading image generation model…', 15);
+    progress('AGENT_BETA', 'Dispatching avatar request to server…', 35);
 
-    // Image model (fails for free tier with quota 0, which triggers catch block beautifully)
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash-image',
-    });
-
-    progress('AGENT_BETA', 'Rendering RPG transformation via API…', 35);
-
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            {
-              inlineData: {
-                mimeType: photoMimeType,
-                data: photoBase64,
-              },
-            },
-            {
-              text: `Transform this person's photo into an RPG fantasy anime portrait in the exact style of "Solo Leveling" manhwa.
-The character should:
-- Have the same face and features as the person in the photo
-- Be rendered in a dark, dramatic Solo Leveling manhwa art style
-- Wear sleek, dark hunter armor with blue/purple glowing runes
-- Have dramatic blue/purple aura particles around them  
-- Background: dark void with faint blue magic circles
-- Pose: confident three-quarter view, slight upward gaze
-- Art style: High quality manhwa illustration, cinematic lighting, dark fantasy
-
-Output ONLY the transformed image.`,
-            },
-          ],
-        },
-      ],
-      generationConfig: {
-        responseModalities: ['image', 'text'],
-      },
+    const result = await withProgressHeartbeat({
+      task: retryWithBackoff(() => postJson(AVATAR_ENDPOINT, {
+        photoBase64,
+        photoMimeType,
+      }, 70000), 2, 1000, 70000),
+      phase: 'AGENT_BETA',
+      progress,
+      startPercent: 35,
+      capPercent: 72,
+      message: 'Generating avatar with Gemini...',
     });
 
     progress('AGENT_BETA', 'Processing avatar rendering…', 75);
 
-    // Extract image from response
-    const parts = result.response.candidates?.[0]?.content?.parts ?? [];
-    for (const part of parts) {
-      if (part.inlineData?.mimeType?.startsWith('image/')) {
-        const dataUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-        progress('AGENT_BETA', 'RPG avatar generation complete ✓', 100);
-        return dataUrl;
-      }
-    }
-
-    throw new Error('No image generated in response');
+    progress('AGENT_BETA', 'RPG avatar generation complete ✓', 100);
+    return result.dataUrl;
 
   } catch (err) {
     console.error('[AvatarAgent] API fallback triggered:', err);
-    progress('AGENT_BETA', 'Applying localized RPG style enhancement…', 60);
-    return simulateAvatarAgent(photoBase64, photoMimeType, onProgress);
+    const errorMsg = getErrorMessage(err);
+    progress('AGENT_BETA', `Fallback: ${errorMsg}. Applying client-side enhancement…`, 60);
+    
+    // Fall back to canvas filter (graceful degradation)
+    try {
+      return await simulateAvatarAgent(photoBase64, photoMimeType, onProgress);
+    } catch (fallbackErr) {
+      console.error('[AvatarAgent] Fallback also failed, returning raw photo:', fallbackErr);
+      // Last resort: return the original photo as dataUrl
+      return `data:${photoMimeType};base64,${photoBase64}`;
+    }
   }
 }
+
 
 // ─── Simulation / Fallback ────────────────────────────────────────────────────
-
-async function simulateProfileAgent(username, onProgress) {
-  const progress = (phase, message, percent) => {
-    onProgress?.({ phase, message, percent });
-  };
-
-  const steps = [
-    [15,  'Scanning resume structure…'],
-    [30,  'Extracting work experience…'],
-    [45,  'Identifying technical skills…'],
-    [60,  'Generating RPG ability names…'],
-    [75,  'Composing hunter profile…'],
-    [90,  'Formatting profile schema…'],
-    [100, 'Profile extraction complete ✓'],
-  ];
-
-  for (const [percent, message] of steps) {
-    progress('AGENT_ALPHA', message, percent);
-    await delay(600 + Math.random() * 400);
-  }
-
-  // Return a styled boilerplate profile
-  return generateBoilerplateProfile(username);
-}
 
 // Client-side canvas filter to create an RPG-aesthetic even when API fails
 async function simulateAvatarAgent(photoBase64, photoMimeType, onProgress) {
@@ -340,125 +215,64 @@ async function simulateAvatarAgent(photoBase64, photoMimeType, onProgress) {
   
   // Use canvas to apply an aesthetic filter to image when AI generation quota is 0
   const filteredImage = await new Promise((resolve) => {
+    let settled = false;
+    const settle = (value) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeoutId);
+      resolve(value);
+    };
+
+    const timeoutId = setTimeout(() => {
+      console.warn('[Avatar] Fallback image processing timed out, returning source image.');
+      settle(dataUrl);
+    }, 5000);
+
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      // Create a square avatar
-      const size = Math.min(img.width, img.height);
-      canvas.width = size;
-      canvas.height = size;
-      
-      const offsetX = (img.width - size) / 2;
-      const offsetY = (img.height - size) / 2;
-      
-      // Draw original
-      ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
-      
-      // Apply filters: Contrast up, brightness down, slight blur, then blue-purple aura blend
-      ctx.globalCompositeOperation = 'overlay';
-      ctx.fillStyle = 'rgba(74, 158, 255, 0.4)'; // Blue aura
-      ctx.fillRect(0, 0, size, size);
-      
-      ctx.globalCompositeOperation = 'multiply';
-      ctx.fillStyle = 'rgba(25, 10, 45, 0.6)'; // Dark shadow layer
-      ctx.fillRect(0, 0, size, size);
-      
-      ctx.globalCompositeOperation = 'screen';
-      ctx.fillStyle = 'rgba(100, 50, 255, 0.2)'; // Magic purple glow
-      ctx.fillRect(0, 0, size, size);
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          settle(dataUrl);
+          return;
+        }
 
-      resolve(canvas.toDataURL('image/jpeg', 0.9));
+        // Create a square avatar
+        const size = Math.min(img.width, img.height);
+        canvas.width = size;
+        canvas.height = size;
+
+        const offsetX = (img.width - size) / 2;
+        const offsetY = (img.height - size) / 2;
+
+        // Draw original
+        ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
+
+        // Apply filters: Contrast up, brightness down, slight blur, then blue-purple aura blend
+        ctx.globalCompositeOperation = 'overlay';
+        ctx.fillStyle = 'rgba(74, 158, 255, 0.4)'; // Blue aura
+        ctx.fillRect(0, 0, size, size);
+
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.fillStyle = 'rgba(25, 10, 45, 0.6)'; // Dark shadow layer
+        ctx.fillRect(0, 0, size, size);
+
+        ctx.globalCompositeOperation = 'screen';
+        ctx.fillStyle = 'rgba(100, 50, 255, 0.2)'; // Magic purple glow
+        ctx.fillRect(0, 0, size, size);
+
+        settle(canvas.toDataURL('image/jpeg', 0.9));
+      } catch {
+        settle(dataUrl);
+      }
     };
-    img.onerror = () => resolve(dataUrl); // Fallback to raw if logic fails
+    img.onerror = () => settle(dataUrl); // Fallback to raw if logic fails
     img.src = dataUrl;
   });
 
   progress('AGENT_BETA', 'RPG avatar transformation complete ✓', 100);
   return filteredImage;
-}
-
-function generateBoilerplateProfile(username) {
-  const displayName = username
-    .split('-')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-
-  return {
-    meta: {
-      username,
-      displayName,
-      tagline: 'Full Stack Developer · Building the Future',
-      avatarUrl: '/sumit_avatar.png',
-      status: 'available',
-      theme: 'solo-leveling',
-    },
-    hero: {
-      alertText: 'A NEW HUNTER HAS AWAKENED!',
-      firstName: displayName.split(' ')[0]?.toUpperCase() ?? 'HUNTER',
-      lastName:  displayName.split(' ')[1]?.toUpperCase() ?? username.toUpperCase(),
-      role:      'Software Developer',
-      stack:     'React.js · Node.js · Python · Cloud',
-      rank:      'B',
-      level:     3,
-      xp:        { current: 5000, max: 10000 },
-      location:  'Earth',
-    },
-    about: {
-      profileFields: [
-        { key: 'NAME',     val: displayName },
-        { key: 'CLASS',    val: 'Software Developer' },
-        { key: 'LEVEL',    val: '3+ Years Experience' },
-        { key: 'STATUS',   val: 'Open to Opportunities' },
-      ],
-      bio: [
-        'A dedicated software developer with a passion for building scalable applications and elegant user interfaces.',
-        'Like a Hunter ascending through the ranks, I continuously sharpen my skills and take on increasingly complex challenges.',
-      ],
-      quickStats: [
-        { val: '10+',  label: 'Projects Shipped' },
-        { val: '3+',   label: 'Years Experience' },
-        { val: '100%', label: 'Passion' },
-      ],
-    },
-    skills: [
-      {
-        category: 'FRONTEND',
-        icon: '👁',
-        skills: [
-          { name: 'React.js', alias: 'DOMAIN EXPANSION',  value: 80, desc: 'Built modern SPAs with hooks, context, and state management.' },
-          { name: 'JavaScript', alias: 'SPEED READING',   value: 82, desc: 'Deep mastery of modern ES2022+ patterns.' },
-        ],
-      },
-      {
-        category: 'BACKEND',
-        icon: '⚔',
-        skills: [
-          { name: 'Node.js',  alias: 'SHADOW EXTRACTION', value: 75, desc: 'Built REST APIs and microservices.' },
-          { name: 'Python',   alias: 'MIND READING',      value: 70, desc: 'Data processing, scripting, and automation.' },
-        ],
-      },
-    ],
-    experience: [],
-    projects:   [],
-    certifications: [],
-    contact: {
-      email:           '',
-      whatsappNumber:  '',
-      linkedin:        '',
-      location:        'Earth',
-    },
-    github: {
-      username,
-      stats: [
-        { label: 'Status:',        value: 'ACTIVE HUNTER' },
-        { label: 'Rank:',          value: 'B-CLASS' },
-        { label: 'Specialization:', value: 'Full Stack' },
-        { label: 'Languages:',     value: 'JS, Python' },
-      ],
-      heatmapSeed: Array.from({ length: 364 }, () => Math.floor(Math.random() * 4)),
-    },
-  };
 }
 
 function delay(ms) {

@@ -6,10 +6,10 @@ import { getUserProfile, getUserAvatar } from '../utils/userStorage';
  * to all section components via useUser().
  *
  * Loading order:
- * 1. Check localStorage (for registered users generated via AI agents)
- * 2. Fall back to bundled JSON imports (for seeded users like sumit-thakur and boilerplate)
+ * 1. Check localStorage (for registered users and seeded profiles like boilerplate)
+ * 2. Fallback to dynamically generated profiles for users not yet cached
  *
- * In production, replace the dynamic import with a fetch() call.
+ * In production, replace the localStorage fallback with a fetch() call to the shared database.
  */
 
 const UserContext = createContext(null);
@@ -23,10 +23,15 @@ export function UserProvider({ children }) {
 
   /**
    * Load a user's data by slug.
-   * Cached: re-calling with the same slug is a no-op.
+   * Note: Cache persists for the component lifetime. To invalidate,
+   * call clearUserCache() or navigate away and back.
    */
   const fetchUser = useCallback(async (slug) => {
-    if (slug === userSlug && userData) return; // already loaded
+    if (slug === userSlug && userData) {
+      // Already loaded this user, skip re-fetch (cache hit)
+      return;
+    }
+
     setUserLoading(true);
     setUserError(null);
     setUserAvatar(null);
@@ -48,6 +53,18 @@ export function UserProvider({ children }) {
   }, [userSlug, userData]);
 
   /**
+   * Clear the current user cache to force a refresh on next fetch.
+   * Useful when user's profile has been updated externally.
+   */
+  const clearUserCache = useCallback(() => {
+    setUserData(null);
+    setUserSlug(null);
+    setUserError(null);
+    setUserAvatar(null);
+  }, []);
+
+
+  /**
    * Update the profile data for the current user in state
    * (called after AI generation completes).
    */
@@ -65,6 +82,7 @@ export function UserProvider({ children }) {
       userLoading,
       userAvatar,
       fetchUser,
+      clearUserCache,
       setLiveProfile,
     }}>
       {children}

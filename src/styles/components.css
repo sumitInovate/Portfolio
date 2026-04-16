@@ -205,12 +205,24 @@
   color: var(--color-text-secondary);
   text-decoration: none;
   transition: color 0.2s;
+  cursor: pointer;
 }
 
 .mobile-menu-overlay .m-nav-link:hover,
 .mobile-menu-overlay .m-nav-link.active {
   color: var(--color-system-400);
   text-shadow: var(--glow-text-blue);
+}
+
+.mobile-menu-overlay .m-nav-link--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Disabled nav-link in sidebar */
+.nav-link--disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
 }
 
 .mobile-close {

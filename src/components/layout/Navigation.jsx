@@ -1,18 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAudio } from '../../context/AudioContext';
-import { useActiveSection } from '../../hooks/useActiveSection';
 
-// sectionId must match the `id` attribute on each <section> element
+// Route-based nav items
 const navItems = [
-  { label: 'HOME',           sectionId: 'hero'           },
-  { label: 'ABOUT',          sectionId: 'about'          },
-  { label: 'SKILLS',         sectionId: 'skills'         },
-  { label: 'EXPERIENCE',     sectionId: 'experience'     },
-  { label: 'PROJECTS',       sectionId: 'projects'       },
-  { label: 'CERTS',          sectionId: 'certifications' },
-  { label: 'CONTACT',        sectionId: 'contact'        },
+  { label: 'LOBBY',    key: 'lobby'    },
+  { label: 'TRAINING', key: 'training', to: '/training' },
 ];
 
 
@@ -46,8 +40,16 @@ function EqBars() {
 
 export function Navigation() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const active = useActiveSection(navItems);
   const { playing, toggle } = useAudio();
+  const location = useLocation();
+
+  /** Resolve which nav key is active based on current route */
+  const getActiveKey = () => {
+    if (location.pathname.startsWith('/training')) return 'training';
+    // Any other path (/:username, /demo) is the Lobby
+    return 'lobby';
+  };
+  const activeKey = getActiveKey();
 
   return (
     <>
@@ -58,26 +60,38 @@ export function Navigation() {
         </Link>
 
         <ul className="nav-items" role="menubar">
-          {navItems.map((item) => (
-            <li key={item.sectionId} className="nav-item" role="none">
-              <a
-                href={`#${item.sectionId}`}
-                className={`nav-link${active === item.sectionId ? ' active' : ''}`}
-                role="menuitem"
-                aria-label={item.label}
-                aria-current={active === item.sectionId ? 'page' : undefined}
-                onClick={(e) => {
-                  e.preventDefault();
-                  document
-                    .getElementById(item.sectionId)
-                    ?.scrollIntoView({ behavior: 'smooth' });
-                }}
-              >
-                <span className="nav-dot" />
-                <span className="nav-label" aria-hidden="true">{item.label}</span>
-              </a>
-            </li>
-          ))}
+          {navItems.map((item) => {
+            const isActive = activeKey === item.key;
+            const isDisabled = !!item.disabled;
+
+            return (
+              <li key={item.key} className="nav-item" role="none">
+                {isDisabled ? (
+                  <span
+                    className={`nav-link nav-link--disabled${isActive ? ' active' : ''}`}
+                    role="menuitem"
+                    aria-label={item.label}
+                    aria-disabled="true"
+                    title="Coming soon"
+                  >
+                    <span className="nav-dot" />
+                    <span className="nav-label" aria-hidden="true">{item.label}</span>
+                  </span>
+                ) : (
+                  <Link
+                    to={item.to ?? location.pathname}
+                    className={`nav-link${isActive ? ' active' : ''}`}
+                    role="menuitem"
+                    aria-label={item.label}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    <span className="nav-dot" />
+                    <span className="nav-label" aria-hidden="true">{item.label}</span>
+                  </Link>
+                )}
+              </li>
+            );
+          })}
         </ul>
 
         {/* Music control button */}
@@ -133,28 +147,36 @@ export function Navigation() {
             >
               ✕
             </button>
-            {navItems.map((item, i) => (
-              <motion.div
-                key={item.sectionId}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-              >
-                <a
-                  href={`#${item.sectionId}`}
-                  className={`m-nav-link${active === item.sectionId ? ' active' : ''}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    document
-                      .getElementById(item.sectionId)
-                      ?.scrollIntoView({ behavior: 'smooth' });
-                    setMobileOpen(false);
-                  }}
+            {navItems.map((item, i) => {
+              const isActive = activeKey === item.key;
+              const isDisabled = !!item.disabled;
+              return (
+                <motion.div
+                  key={item.key}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08 }}
                 >
-                  {item.label}
-                </a>
-              </motion.div>
-            ))}
+                  {isDisabled ? (
+                    <span
+                      className={`m-nav-link m-nav-link--disabled${isActive ? ' active' : ''}`}
+                      aria-disabled="true"
+                      title="Coming soon"
+                    >
+                      {item.label}
+                    </span>
+                  ) : (
+                    <Link
+                      to={item.to ?? location.pathname}
+                      className={`m-nav-link${isActive ? ' active' : ''}`}
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  )}
+                </motion.div>
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>

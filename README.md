@@ -70,8 +70,8 @@ cd Portfolio
 # 2. Install dependencies
 npm install
 
-# 3. Set up environment variables (optional — see below)
-cp .env.example .env.local
+# 3. Set up environment variables
+cp .env.example .env
 
 # 4. Start the dev server
 npm run dev
@@ -80,10 +80,20 @@ npm run dev
 Open **http://localhost:5173** → CodeAether landing page.  
 Sign in with username `sumit-thakur` to view the demo portfolio.
 
+Registration profile/avatar generation and training badge generation use server-side API routes. In deployed environments these routes are available on the same origin. For local end-to-end agent testing, run the app through a Vercel-compatible dev server so the `/api/*` routes are available alongside the frontend.
+
+If the frontend and API are on different local origins, set `VITE_API_URL` to the API origin so registration can reach the server-side Gemini routes.
+
 ### Environment Variables
 
 ```env
-# .env.local
+# .env
+# Server-side Gemini for registration + training agents
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Optional when the API runs on a different origin in local development
+VITE_API_URL=http://localhost:3000
+
 # WhatsApp contact form (via CallMeBot API)
 # Leave blank in development — the form will simulate success
 VITE_MY_WHATSAPP_NUMBER=91XXXXXXXXXX

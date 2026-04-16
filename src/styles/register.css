@@ -636,6 +636,11 @@
   border-color: rgba(39, 201, 63, 0.4);
 }
 
+.agent-panel.failed {
+  border-color: rgba(255, 107, 107, 0.45);
+  box-shadow: 0 0 18px rgba(255, 107, 107, 0.08);
+}
+
 .agent-panel.pending {
   opacity: 0.4;
 }
@@ -659,6 +664,10 @@
 
 .agent-panel.completed .agent-panel-name {
   color: #27c93f;
+}
+
+.agent-panel.failed .agent-panel-name {
+  color: #ff6b6b;
 }
 
 .agent-status-badge {
@@ -685,6 +694,12 @@
 .agent-status-badge.pending {
   color: var(--color-text-muted);
   border-color: var(--color-border);
+}
+
+.agent-status-badge.failed {
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.5);
+  background: rgba(255, 107, 107, 0.08);
 }
 
 .agent-message {
@@ -723,6 +738,11 @@
 .agent-panel.completed .agent-panel-progress-fill {
   background: #27c93f;
   box-shadow: 0 0 6px rgba(39, 201, 63, 0.4);
+}
+
+.agent-panel.failed .agent-panel-progress-fill {
+  background: #ff6b6b;
+  box-shadow: 0 0 6px rgba(255, 107, 107, 0.4);
 }
 
 /* ── Log stream ── */
