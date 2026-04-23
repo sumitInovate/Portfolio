@@ -4,6 +4,7 @@ import {
   extractJSON,
   retryWithBackoff,
   buildProfilePrompt,
+  buildLinkedInFallbackPrompt,
   AVATAR_PROMPT,
 } from './geminiAgentShared.js';
 
@@ -84,6 +85,64 @@ export async function runProfileAgent({
 
   } catch (err) {
     console.error('[ProfileAgent]', err);
+    const errorMsg = getErrorMessage(err);
+    progress('AGENT_ALPHA', errorMsg, 100);
+    throw new Error(`Profile Extraction Failed: ${errorMsg}`);
+  }
+}
+
+// ─ Agent Alpha Fallback: LinkedIn Text-based Profile Generator ─
+
+/**
+ * When resume extraction fails and a LinkedIn URL is present, this agent
+ * generates a valid profile from structured text fields the user provides
+ * manually (no scraping — frontend-only, CORS-safe).
+ */
+export async function runLinkedInFallbackAgent({
+  linkedinUrl = '',
+  linkedinData,
+  username,
+  onProgress,
+}) {
+  const progress = (phase, message, percent) => onProgress?.({ phase, message, percent });
+
+  progress('AGENT_ALPHA', 'Initializing LinkedIn fallback protocol...', 5);
+
+  if (!API_KEY || API_KEY === 'your_gemini_api_key_here') {
+    const msg = 'Gemini API key not configured. Profile generation requires a valid API key.';
+    progress('AGENT_ALPHA', msg, 100);
+    throw new Error(`Profile Extraction Failed: ${msg}`);
+  }
+
+  try {
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+    progress('AGENT_ALPHA', 'Building profile from LinkedIn data...', 15);
+
+    const prompt = buildLinkedInFallbackPrompt({ username, linkedinUrl, linkedinData });
+
+    progress('AGENT_ALPHA', 'Generating profile from LinkedIn information...', 30);
+
+    const profile = await retryWithBackoff(async () => {
+      const result = await model.generateContent(prompt);
+
+      progress('AGENT_ALPHA', 'Parsing generated profile data...', 70);
+
+      const text = result.response.text().trim();
+      const extracted = extractJSON(text);
+
+      progress('AGENT_ALPHA', 'Validating profile against schema...', 75);
+      const normalized = validateAndNormalizeProfile(extracted);
+      normalized.meta.username = username;
+      return normalized;
+    }, 2, 2000);
+
+    progress('AGENT_ALPHA', 'LinkedIn-based profile generation complete.', 100);
+    return profile;
+
+  } catch (err) {
+    console.error('[LinkedInFallbackAgent]', err);
     const errorMsg = getErrorMessage(err);
     progress('AGENT_ALPHA', errorMsg, 100);
     throw new Error(`Profile Extraction Failed: ${errorMsg}`);

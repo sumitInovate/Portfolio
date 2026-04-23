@@ -27,8 +27,11 @@ export function GoalsEditor({ username: _username }) {
   const goals = useHunterStore(s => s.goals);
   const addGoal = useHunterStore(s => s.addGoal);
   const removeGoal = useHunterStore(s => s.removeGoal);
+  const setGoals = useHunterStore(s => s.setGoals);
   const setBadges = useHunterStore(s => s.setBadges);
   const setAgentRunning = useHunterStore(s => s.setAgentRunning);
+  const setLastAgentRun = useHunterStore(s => s.setLastAgentRun);
+  const setAgentError = useHunterStore(s => s.setAgentError);
   const addToast = useHunterStore(s => s.addToast);
 
   const [addingFor, setAddingFor] = useState(null);
@@ -66,18 +69,32 @@ export function GoalsEditor({ username: _username }) {
   };
 
   const handleSaveAndRunAgent = async () => {
+    const latestGoals = hunterStorage.getHunterGoals(profile.username);
+    setGoals(latestGoals);
+
+    const activeGoals = latestGoals.filter(g => g.is_active);
+    if (activeGoals.length === 0) {
+      addToast({
+        type: 'error',
+        message: 'Add at least one active goal before generating missions.',
+      });
+      return;
+    }
+
     setSaving(true);
     setIsDirty(false);
     setAgentRunning(true);
+    setAgentError(null);
 
     try {
       const generatedBadges = await runBadgeAgent({
         profile,
-        goals: goals.filter(g => g.is_active),
+        goals: activeGoals,
       });
 
       hunterStorage.saveHunterBadges(profile.username, generatedBadges);
       setBadges(generatedBadges);
+      setLastAgentRun(new Date().toISOString());
 
       hunterStorage.recordAgentRun(profile.username, {
         trigger: 'goals_changed',
@@ -90,6 +107,7 @@ export function GoalsEditor({ username: _username }) {
       });
     } catch (err) {
       console.error('Agent error:', err);
+      setAgentError(err?.message || 'Mission generation failed');
       addToast({
         type: 'error',
         message: 'Mission generation failed. Please retry.',

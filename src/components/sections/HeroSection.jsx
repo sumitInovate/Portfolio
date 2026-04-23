@@ -143,7 +143,7 @@ export function HeroSection() {
                       <span className="hero-stat-val">{hero.level}+ LVL</span>
                     </div>
                     <div className="hero-stat">
-                      <MapPin size={10} color="var(--color-system-400)" />
+                      <MapPin size={10} color="var(--color-charcoal)" />
                       <span className="hero-stat-label">LOCATION:</span>
                       <span className="hero-stat-val">{hero.location}</span>
                     </div>

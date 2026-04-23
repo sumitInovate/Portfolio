@@ -111,6 +111,64 @@ Rules:
 Output ONLY valid JSON, nothing else.`;
 }
 
+/**
+ * Build a Gemini prompt that generates a full profile from manually provided
+ * LinkedIn information (no scraping — user pastes their own data).
+ *
+ * @param {object} params
+ * @param {string} params.username     – CodeAether slug for this user
+ * @param {string} [params.linkedinUrl] – LinkedIn profile URL (context only)
+ * @param {object} params.linkedinData  – Structured fields from the recovery form
+ */
+export function buildLinkedInFallbackPrompt({ username, linkedinUrl = '', linkedinData = {} }) {
+  const {
+    firstName  = '',
+    lastName   = '',
+    headline   = '',
+    location   = '',
+    summary    = '',
+    skills     = '',
+    experience = '',
+    education  = '',
+  } = linkedinData;
+
+  const lines = [];
+  if (firstName || lastName) lines.push(`Name: ${[firstName, lastName].filter(Boolean).join(' ')}`);
+  if (headline)   lines.push(`Headline / Current Role: ${headline}`);
+  if (location)   lines.push(`Location: ${location}`);
+  if (summary)    lines.push(`\nAbout / Summary:\n${summary}`);
+  if (skills)     lines.push(`\nSkills:\n${skills}`);
+  if (experience) lines.push(`\nWork Experience:\n${experience}`);
+  if (education)  lines.push(`\nEducation:\n${education}`);
+
+  const profileInfo = lines.join('\n') || '(No additional details — infer from username)';
+
+  return `You are an expert profile extraction AI for a developer portfolio platform called CodeAether.
+Build a complete developer portfolio profile from the following LinkedIn information manually provided by the user.
+${linkedinUrl ? `LinkedIn Profile URL: ${linkedinUrl}` : ''}
+
+The username/slug for this user is: "${username}"
+
+USER'S LINKEDIN INFORMATION:
+${profileInfo}
+
+Generate a complete JSON profile in EXACTLY this schema format (no markdown, no code blocks, just raw JSON):
+${PROFILE_SCHEMA}
+
+Rules:
+- Assign RPG rank based on seniority: E (student/intern), D (<1yr), C (1-2yr), B (2-4yr), A (4-6yr), S (6+ yr)
+- Create creative Solo Leveling-style RPG ability names for each skill (e.g. "SHADOW EXTRACTION", "DOMAIN EXPANSION")
+- Write bio in an epic hunter/RPG tone while remaining professional
+- Include ALL work experience found in the information
+- Include ALL skills mentioned (group into BACKEND, FRONTEND, CLOUD & DEVOPS, TOOLS, etc.)
+- Set avatarUrl to "/sumit_avatar.png" (will be replaced later)
+- Keep contact.email and contact.whatsappNumber empty (privacy)
+- The heatmapSeed array must have EXACTLY 364 numbers, each 0-3
+- If name is not provided, infer from the username slug or default to "Hunter" / username
+
+Output ONLY valid JSON, nothing else.`;
+}
+
 export const AVATAR_PROMPT = `Transform this person's photo into an RPG fantasy anime portrait in the exact style of "Solo Leveling" manhwa.
 The character should:
 - Have the same face and features as the person in the photo
@@ -150,7 +208,7 @@ export function extractJSON(text) {
   );
 }
 
-export function withTimeout(promise, timeoutMs, timeoutMessage) {
+function withTimeout(promise, timeoutMs, timeoutMessage) {
   let timeoutId;
 
   const timeoutPromise = new Promise((_, reject) => {
@@ -195,43 +253,6 @@ export async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000, tim
   }
 
   throw lastError;
-}
-
-export function getErrorMessage(error) {
-  const message = error.message?.toLowerCase() ?? '';
-  const status = error.statusCode || error.status;
-
-  if (message.includes('quota') || message.includes('rate limit') || status === 429) {
-    return 'API quota exceeded. Please try again in a few minutes.';
-  }
-
-  if (message.includes('network') || message.includes('fetch') || message.includes('timeout')) {
-    return 'Network error. Check your internet connection and try again.';
-  }
-
-  if (message.includes('401') || message.includes('unauthorized') || message.includes('invalid api')) {
-    return 'Invalid Gemini service configuration. Check the server GEMINI_API_KEY.';
-  }
-
-  if (message.includes('403') || message.includes('forbidden')) {
-    return 'Access forbidden. The Gemini service key may not have permission for this model.';
-  }
-
-  if (message.includes('validation') || message.includes('schema')) {
-    return 'Profile validation failed. The extracted data did not match the expected format.';
-  }
-
-  if (message.includes('resume') || message.includes('document')) {
-    return 'Could not parse resume. Please ensure it is a valid PDF or DOCX file (< 25MB).';
-  }
-
-  return `API Error: ${error.message ?? 'Unknown error'}`;
-}
-
-export function createHttpError(message, statusCode = 500) {
-  const error = new Error(message);
-  error.statusCode = statusCode;
-  return error;
 }
 
 function delay(ms) {

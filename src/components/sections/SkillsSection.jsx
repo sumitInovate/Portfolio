@@ -26,7 +26,7 @@ export function SkillsSection() {
   const skillCategories = userData?.skills ?? [];
 
   return (
-    <section id="skills" className="section" style={{ background: 'rgba(8, 15, 30, 0.95)' }}>
+    <section id="skills" className="section" style={{ background: 'rgba(232, 228, 221, 0.95)' }}>
       <div className="container">
         <RevealOnScroll>
           <h2 className="section-heading">SKILL REGISTRY</h2>

@@ -13,10 +13,15 @@ const RANK_COLORS = {
 
 export function BadgeMissionCard({ badge }) {
   const [open, setOpen] = useState(false);
+  const [activeVideoId, setActiveVideoId] = useState(null);
   const profile = useHunterStore(s => s.profile);
   const badges = useHunterStore(s => s.badges);
   const setBadges = useHunterStore(s => s.setBadges);
   const applyXPGain = useHunterStore(s => s.applyXPGain);
+  const markVideoComplete = useHunterStore(s => s.markVideoComplete);
+  const addToast = useHunterStore(s => s.addToast);
+
+  const learningPaths = Array.isArray(badge.learning_paths) ? badge.learning_paths : [];
 
   const rankColor = RANK_COLORS[badge.rank] ?? '#4A9EFF';
   const progressPct = badge.videos_total > 0
@@ -27,6 +32,57 @@ export function BadgeMissionCard({ badge }) {
     () => (badge.videos_watched || 0) >= (badge.videos_total || 0) && (badge.videos_total || 0) > 0,
     [badge.videos_watched, badge.videos_total]
   );
+
+  const firstVideo = learningPaths[0] || null;
+  const resolvedActiveVideoId = activeVideoId || (firstVideo?.id || firstVideo?.youtube_id || firstVideo?.youtube_url || null);
+
+  const activeVideo = learningPaths.find((video) => {
+    const key = video.id || video.youtube_id || video.youtube_url;
+    return key === resolvedActiveVideoId;
+  }) || null;
+
+  const extractYouTubeId = (video) => {
+    const candidate = video?.youtube_id || '';
+    if (candidate) return candidate;
+
+    const source = video?.youtube_url || '';
+    const patterns = [
+      /(?:youtube\.com.*[?&]v=|youtu\.be\/)([^&\n?#]+)/,
+      /youtube\.com\/embed\/([^&\n?#]+)/,
+    ];
+
+    for (const pattern of patterns) {
+      const match = pattern.exec(source);
+      if (match) return match[1];
+    }
+
+    return '';
+  };
+
+  const getWatchUrl = (video) => {
+    if (video?.youtube_url) return video.youtube_url;
+    const id = extractYouTubeId(video);
+    return id ? `https://www.youtube.com/watch?v=${id}` : '#';
+  };
+
+  const getEmbedUrl = (video) => {
+    const id = extractYouTubeId(video);
+    if (!id) return '';
+    return `https://www.youtube.com/embed/${id}`;
+  };
+
+  const handleMarkWatched = (video) => {
+    const videoId = video.id || video.youtube_id || video.youtube_url;
+    if (!videoId) return;
+
+    const marked = markVideoComplete(videoId, badge.id, Number(video.xp_value) || 0);
+    if (marked) {
+      addToast({
+        type: 'success',
+        message: `+${Number(video.xp_value) || 0} XP awarded for watched video`,
+      });
+    }
+  };
 
   const handleComplete = () => {
     if (!profile || !canComplete) return;
@@ -86,14 +142,60 @@ export function BadgeMissionCard({ badge }) {
             <span className="hsb-stat-sub">{badge.videos_watched || 0} / {badge.videos_total || 0} videos</span>
           </div>
 
-          {Array.isArray(badge.learning_paths) && badge.learning_paths.length > 0 ? (
-            <ul style={{ margin: 0, paddingLeft: 16, color: 'var(--color-text-muted)' }}>
-              {badge.learning_paths.slice(0, 5).map((video, i) => (
-                <li key={video.id || `${badge.id}-${i}`} style={{ marginBottom: 6 }}>
-                  {video.title || `Learning video ${i + 1}`}
-                </li>
-              ))}
-            </ul>
+          {learningPaths.length > 0 ? (
+            <div className="badge-videos">
+              <div className="badge-video-list">
+                {learningPaths.slice(0, 5).map((video, i) => {
+                  const videoKey = video.id || video.youtube_id || video.youtube_url || `${badge.id}-${i}`;
+                  const watched = video.watch_status === 'watched';
+
+                  return (
+                    <div key={videoKey} className="badge-video-item">
+                      <button
+                        type="button"
+                        className={`badge-video-select ${resolvedActiveVideoId === videoKey ? 'badge-video-select--active' : ''}`}
+                        onClick={() => setActiveVideoId(videoKey)}
+                      >
+                        {video.title || `Learning video ${i + 1}`}
+                      </button>
+
+                      <div className="badge-video-actions">
+                        <a
+                          href={getWatchUrl(video)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="badge-video-link"
+                        >
+                          OPEN ON YOUTUBE
+                        </a>
+                        <button
+                          type="button"
+                          className="badge-video-watch"
+                          onClick={() => handleMarkWatched(video)}
+                          disabled={watched}
+                        >
+                          {watched ? 'WATCHED' : `MARK WATCHED (+${Number(video.xp_value) || 0} XP)`}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {activeVideo && getEmbedUrl(activeVideo) ? (
+                <div className="badge-video-embed-wrap">
+                  <iframe
+                    className="badge-video-embed"
+                    src={getEmbedUrl(activeVideo)}
+                    title={activeVideo.title || 'Learning video'}
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
+                  />
+                </div>
+              ) : null}
+            </div>
           ) : (
             <p className="missions-empty__sub" style={{ marginBottom: 12 }}>No video path generated yet.</p>
           )}

@@ -6,7 +6,7 @@ export function CertificationsSection() {
   const certs = userData?.certifications ?? [];
 
   return (
-    <section id="certifications" className="section" style={{ background: 'var(--color-abyss)' }}>
+    <section id="certifications" className="section" style={{ background: 'var(--color-cream)' }}>
       <div className="container">
         <RevealOnScroll>
           <h2 className="section-heading">TITLES EARNED</h2>

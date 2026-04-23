@@ -2,27 +2,6 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { hunterStorage } from '../utils/training/hunterStorage';
 
-const CLASS_FOR_LEVEL = (level) => {
-  if (level >= 50) return 'S';
-  if (level >= 30) return 'A';
-  if (level >= 20) return 'B';
-  if (level >= 10) return 'C';
-  if (level >= 5) return 'D';
-  return 'E';
-};
-
-const JOB_TITLE_FOR_LEVEL = (level, cls) => {
-  const titles = {
-    E: 'Novice Hunter',
-    D: 'Awakened Hunter',
-    C: 'Shadow Soldier',
-    B: 'Shadow Knight',
-    A: 'Shadow Marshal',
-    S: 'Shadow Monarch',
-  };
-  return titles[cls] || 'Novice Hunter';
-};
-
 /**
  * useHunterStore — Single source of truth for training page
  *
@@ -116,12 +95,6 @@ export const useHunterStore = create(
       }
     },
 
-    dismissLevelUp: () => set({ levelUpData: null }),
-
-    dismissXPFloat: (id) => set(state => ({
-      pendingXPFloats: state.pendingXPFloats.filter(f => f.id !== id),
-    })),
-
     // ─── BADGES (ACTIVE MISSIONS) ──────────────────────────────────
     badges: [],
     setBadges: (badges) => set({ badges }),
@@ -159,17 +132,67 @@ export const useHunterStore = create(
      * Mark a video as watched
      * Updates badge progress counter
      */
-    markVideoComplete: (videoId, badgeId, xpGained) => {
-      set(state => ({
-        badges: state.badges.map(b => {
-          if (b.id !== badgeId) return b;
+    markVideoComplete: (videoId, badgeId, xpGained = 0) => {
+      const { profile } = get();
+      if (!profile) return false;
+
+      let wasMarked = false;
+      let nextBadges = null;
+
+      set(state => {
+        nextBadges = state.badges.map((badge) => {
+          if (badge.id !== badgeId) return badge;
+
+          const paths = Array.isArray(badge.learning_paths) ? badge.learning_paths : [];
+          let touched = false;
+
+          const nextPaths = paths.map((path) => {
+            const pathId = path.id || path.youtube_id || path.youtube_url;
+            if (pathId !== videoId) return path;
+            if (path.watch_status === 'watched') return path;
+
+            touched = true;
+            return {
+              ...path,
+              watch_status: 'watched',
+              watched_at: new Date().toISOString(),
+            };
+          });
+
+          if (!touched) return badge;
+
+          wasMarked = true;
+          const watchedCount = nextPaths.filter((path) => path.watch_status === 'watched').length;
+
           return {
-            ...b,
-            videos_watched: b.videos_watched + 1,
-            xp_from_videos: (b.xp_from_videos || 0) + xpGained,
+            ...badge,
+            learning_paths: nextPaths,
+            videos_total: nextPaths.length,
+            videos_watched: watchedCount,
+            xp_from_videos: (badge.xp_from_videos || 0) + Math.max(0, Number(xpGained) || 0),
           };
-        }),
-      }));
+        });
+
+        return wasMarked ? { badges: nextBadges } : {};
+      });
+
+      if (!wasMarked || !nextBadges) return false;
+
+      hunterStorage.saveHunterBadges(profile.username, nextBadges);
+
+      const safeXP = Math.max(0, Number(xpGained) || 0);
+      if (safeXP > 0) {
+        const xpResult = hunterStorage.awardXP(
+          profile.username,
+          safeXP,
+          'video_watch',
+          badgeId,
+          'Learning path video completed'
+        );
+        get().applyXPGain(safeXP, xpResult);
+      }
+
+      return true;
     },
 
     // ─── GOALS ─────────────────────────────────────────────────────
@@ -199,32 +222,6 @@ export const useHunterStore = create(
     removeToast: (id) => set(state => ({
       toasts: state.toasts.filter(t => t.id !== id),
     })),
-
-    // ─── HELPERS ────────────────────────────────────────────────────
-    /** Get percentage of XP bar filled */
-    getXPPercentage: () => {
-      const { profile } = get();
-      if (!profile) return 0;
-      return Math.min((profile.xp_current / profile.xp_to_next) * 100, 100);
-    },
-
-    /** Get active badge cards (not completed) */
-    getActiveBadges: () => {
-      const { badges } = get();
-      return badges.filter(b => b.status === 'active');
-    },
-
-    /** Get completed badge cards */
-    getCompletedBadges: () => {
-      const { badges } = get();
-      return badges.filter(b => b.status === 'completed');
-    },
-
-    /** Get goals by category */
-    getGoalsByCategory: (category) => {
-      const { goals } = get();
-      return goals.filter(g => g.category === category && g.is_active);
-    },
 
     /** Reset all store state (for logout) */
     reset: () => set({

@@ -11,7 +11,7 @@ export function AboutSection() {
   const quickStats    = about.quickStats ?? [];
 
   return (
-    <section id="about" className="section" style={{ background: 'var(--color-abyss)' }}>
+    <section id="about" className="section" style={{ background: 'var(--color-cream)' }}>
       <div className="container">
         <RevealOnScroll>
           <h2 className="section-heading">HUNTER PROFILE</h2>
@@ -54,13 +54,13 @@ export function AboutSection() {
                     whileHover={{ scale: 1.03 }}
                     style={{
                       padding: 'var(--space-4)',
-                      background: 'rgba(13, 21, 38, 0.8)',
-                      border: '1px solid var(--color-border)',
+                      background: 'rgba(232, 228, 221, 0.8)',
+                      border: '1px solid var(--color-light-border)',
                       borderRadius: '4px',
                       textAlign: 'center',
                     }}
                   >
-                    <div style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-2xl)', fontWeight: 900, color: 'var(--color-system-400)', textShadow: 'var(--glow-text-blue)' }}>
+                    <div style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-2xl)', fontWeight: 900, color: 'var(--color-charcoal)' }}>
                       {val}
                     </div>
                     <div style={{ fontFamily: 'var(--font-system)', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', letterSpacing: '1px', marginTop: '4px' }}>

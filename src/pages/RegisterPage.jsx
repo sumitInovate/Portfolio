@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { runProfileAgent, runAvatarAgent } from '../utils/geminiAgents';
+import { runProfileAgent, runAvatarAgent, runLinkedInFallbackAgent } from '../utils/geminiAgents';
 import { saveUserProfile, saveUserAvatar, rollbackUserRegistration } from '../utils/userStorage';
 import { SystemCursor } from '../components/layout/SystemCursor';
 
@@ -352,6 +352,164 @@ function StepAssets({ credentials, onSubmit }) {
 }
 
 
+// — LinkedIn Recovery Panel —
+
+function LinkedInRecoveryPanel({ linkedinUrl, onSubmit }) {
+  const [firstName,  setFirstName]  = useState('');
+  const [lastName,   setLastName]   = useState('');
+  const [headline,   setHeadline]   = useState('');
+  const [location,   setLocation]   = useState('');
+  const [summary,    setSummary]    = useState('');
+  const [skills,     setSkills]     = useState('');
+  const [experience, setExperience] = useState('');
+  const [education,  setEducation]  = useState('');
+  const [formError,  setFormError]  = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setFormError('');
+    if (!headline.trim()) {
+      setFormError('Headline / current role is required.');
+      return;
+    }
+    if (!skills.trim()) {
+      setFormError('Please list at least a few skills.');
+      return;
+    }
+    onSubmit({ firstName, lastName, headline, location, summary, skills, experience, education });
+  };
+
+  const fieldStyle  = { margin: 0 };
+  const labelStyle  = { fontSize: '10px' };
+  const taStyle     = { resize: 'vertical', fontFamily: 'var(--font-mono)', fontSize: '12px' };
+
+  return (
+    <motion.div
+      key="linkedin-recovery"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      style={{
+        background: 'rgba(6, 10, 20, 0.98)',
+        border: '1px solid rgba(0, 200, 255, 0.18)',
+        borderRadius: '4px',
+        padding: '20px',
+        marginTop: '16px',
+        maxHeight: '55vh',
+        overflowY: 'auto',
+      }}
+    >
+      <div style={{ fontSize: '10px', letterSpacing: '2px', color: 'var(--color-system-400)', marginBottom: '6px', fontFamily: 'var(--font-system)' }}>
+        // LINKEDIN RECOVERY PROTOCOL
+      </div>
+      <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '0 0 14px', lineHeight: '1.6', fontFamily: 'var(--font-system)' }}>
+        Resume extraction failed. Paste your LinkedIn profile details below — our AI will build your profile from this data.
+      </p>
+      {linkedinUrl && (
+        <div style={{ fontSize: '10px', color: 'var(--color-system-400)', marginBottom: '12px', fontFamily: 'var(--font-mono)', opacity: 0.7 }}>
+          ↳ {linkedinUrl}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div className="register-field" style={fieldStyle}>
+            <label className="register-label" style={labelStyle}>FIRST NAME</label>
+            <input className="register-input" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="John" />
+          </div>
+          <div className="register-field" style={fieldStyle}>
+            <label className="register-label" style={labelStyle}>LAST NAME</label>
+            <input className="register-input" value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Doe" />
+          </div>
+        </div>
+
+        <div className="register-field" style={fieldStyle}>
+          <label className="register-label" style={labelStyle}>
+            HEADLINE / CURRENT ROLE&nbsp;
+            <span style={{ color: 'var(--color-system-400)', fontSize: '9px' }}>REQUIRED</span>
+          </label>
+          <input
+            className="register-input"
+            value={headline}
+            onChange={e => setHeadline(e.target.value)}
+            placeholder="e.g. Senior Software Engineer at Google"
+          />
+        </div>
+
+        <div className="register-field" style={fieldStyle}>
+          <label className="register-label" style={labelStyle}>LOCATION</label>
+          <input
+            className="register-input"
+            value={location}
+            onChange={e => setLocation(e.target.value)}
+            placeholder="e.g. San Francisco, CA"
+          />
+        </div>
+
+        <div className="register-field" style={fieldStyle}>
+          <label className="register-label" style={labelStyle}>ABOUT / SUMMARY</label>
+          <textarea
+            className="register-input"
+            rows={3}
+            style={taStyle}
+            value={summary}
+            onChange={e => setSummary(e.target.value)}
+            placeholder="Paste your LinkedIn About section here..."
+          />
+        </div>
+
+        <div className="register-field" style={fieldStyle}>
+          <label className="register-label" style={labelStyle}>
+            SKILLS&nbsp;
+            <span style={{ color: 'var(--color-system-400)', fontSize: '9px' }}>REQUIRED</span>
+          </label>
+          <textarea
+            className="register-input"
+            rows={2}
+            style={taStyle}
+            value={skills}
+            onChange={e => setSkills(e.target.value)}
+            placeholder="e.g. React, Node.js, TypeScript, AWS, Docker..."
+          />
+        </div>
+
+        <div className="register-field" style={fieldStyle}>
+          <label className="register-label" style={labelStyle}>WORK EXPERIENCE</label>
+          <textarea
+            className="register-input"
+            rows={4}
+            style={taStyle}
+            value={experience}
+            onChange={e => setExperience(e.target.value)}
+            placeholder={`e.g. Senior Engineer at Google (2021–Present)\n- Built scalable APIs used by 10M+ users\n\nSoftware Engineer at Startup (2019–2021)\n- Led frontend team of 5 engineers`}
+          />
+        </div>
+
+        <div className="register-field" style={fieldStyle}>
+          <label className="register-label" style={labelStyle}>EDUCATION (OPTIONAL)</label>
+          <textarea
+            className="register-input"
+            rows={2}
+            style={taStyle}
+            value={education}
+            onChange={e => setEducation(e.target.value)}
+            placeholder="e.g. B.S. Computer Science, MIT (2015–2019)"
+          />
+        </div>
+
+        {formError && (
+          <div className="register-error" role="alert">⚠ {formError}</div>
+        )}
+
+        <button type="submit" className="register-submit-btn" style={{ marginTop: '4px' }}>
+          GENERATE PROFILE FROM LINKEDIN DATA →
+        </button>
+      </form>
+    </motion.div>
+  );
+}
+
+
 function ProcessingScreen({ registrationData }) {
   const { signUp } = useAuth();
   const navigate   = useNavigate();
@@ -371,6 +529,7 @@ function ProcessingScreen({ registrationData }) {
   const [phase,         setPhase]         = useState('auth');
   const [errorMessage,  setErrorMessage]  = useState('');
   const [errorDetails,  setErrorDetails]  = useState('');
+  const recoveryResolveRef = useRef(null);
 
   const addLog = useCallback((line, highlight = false) => {
     const logId = ++logCounterRef.current;
@@ -429,6 +588,7 @@ function ProcessingScreen({ registrationData }) {
           setProgress,
           onCompletedMessage,
           onCompletedLog,
+          maxAttempts = Infinity,
         }) => {
           let attempt = 1;
 
@@ -448,6 +608,10 @@ function ProcessingScreen({ registrationData }) {
               return value;
             } catch (reason) {
               if (cancelled) {
+                throw reason;
+              }
+
+              if (attempt >= maxAttempts) {
                 throw reason;
               }
 
@@ -476,27 +640,81 @@ function ProcessingScreen({ registrationData }) {
           throw new Error('Registration cancelled');
         };
 
-        const profile = await runAgentWithSelfRetry({
-          agentLabel: 'AGENT ALPHA',
-          execute: (attempt) => runProfileAgent({
-            resumeBase64,
-            resumeMimeType: resume.type || 'application/pdf',
-            linkedinUrl: linkedin,
-            username,
-            onProgress: ({ message, percent }) => {
-              if (cancelled) return;
-              setAlphaProgress(percent);
-              setAlphaMessage(attempt > 1 ? `Attempt ${attempt}: ${message}` : message);
-              setTotalPercent(15 + Math.round(percent * 0.4));
-              addLog(`[ALPHA] ${message}`);
-            },
-          }),
-          setStatus: setAlphaStatus,
-          setMessage: setAlphaMessage,
-          setProgress: setAlphaProgress,
-          onCompletedMessage: 'Profile extraction complete.',
-          onCompletedLog: '[AGENT ALPHA] Profile data extracted [OK]',
-        });
+        let profile;
+
+        try {
+          profile = await runAgentWithSelfRetry({
+            agentLabel: 'AGENT ALPHA',
+            maxAttempts: 3,
+            execute: (attempt) => runProfileAgent({
+              resumeBase64,
+              resumeMimeType: resume.type || 'application/pdf',
+              linkedinUrl: linkedin,
+              username,
+              onProgress: ({ message, percent }) => {
+                if (cancelled) return;
+                setAlphaProgress(percent);
+                setAlphaMessage(attempt > 1 ? `Attempt ${attempt}: ${message}` : message);
+                setTotalPercent(15 + Math.round(percent * 0.4));
+                addLog(`[ALPHA] ${message}`);
+              },
+            }),
+            setStatus: setAlphaStatus,
+            setMessage: setAlphaMessage,
+            setProgress: setAlphaProgress,
+            onCompletedMessage: 'Profile extraction complete.',
+            onCompletedLog: '[AGENT ALPHA] Profile data extracted [OK]',
+          });
+        } catch (alphaErr) {
+          if (cancelled) throw alphaErr;
+
+          if (linkedin) {
+            // Resume failed but LinkedIn URL is present — switch to manual recovery
+            setAlphaStatus('failed');
+            setAlphaMessage('Resume extraction failed. Awaiting LinkedIn recovery data...');
+            addLog('[AGENT ALPHA] Resume extraction failed after 3 attempts.', true);
+            addLog('[SYSTEM] LinkedIn URL detected — switching to manual recovery mode.', true);
+
+            updatePhase('recovery');
+
+            // Pause the async flow until the user submits the recovery form
+            const linkedinRecoveryData = await new Promise((resolve) => {
+              recoveryResolveRef.current = resolve;
+            });
+
+            if (cancelled) throw new Error('Registration cancelled');
+
+            setAlphaStatus('active');
+            setAlphaProgress(0);
+            setAlphaMessage('LinkedIn recovery data received. Generating profile...');
+            updatePhase('agents');
+            addLog('[AGENT ALPHA] Resuming with LinkedIn data...', true);
+
+            profile = await runAgentWithSelfRetry({
+              agentLabel: 'AGENT ALPHA',
+              execute: (attempt) => runLinkedInFallbackAgent({
+                linkedinUrl: linkedin,
+                linkedinData: linkedinRecoveryData,
+                username,
+                onProgress: ({ message, percent }) => {
+                  if (cancelled) return;
+                  setAlphaProgress(percent);
+                  setAlphaMessage(attempt > 1 ? `Attempt ${attempt}: ${message}` : message);
+                  setTotalPercent(15 + Math.round(percent * 0.4));
+                  addLog(`[ALPHA] ${message}`);
+                },
+              }),
+              setStatus: setAlphaStatus,
+              setMessage: setAlphaMessage,
+              setProgress: setAlphaProgress,
+              onCompletedMessage: 'LinkedIn-based profile extraction complete.',
+              onCompletedLog: '[AGENT ALPHA] LinkedIn profile data extracted [OK]',
+            });
+          } else {
+            // No LinkedIn URL — surface the error normally
+            throw alphaErr;
+          }
+        }
 
         if (cancelled) return;
         setTotalPercent(55);
@@ -602,6 +820,7 @@ function ProcessingScreen({ registrationData }) {
     auth:       'AUTHENTICATING...',
     processing: 'PROCESSING ASSETS...',
     agents:     'RUNNING AI AGENTS...',
+    recovery:   'LINKEDIN RECOVERY MODE',
     finalizing: 'FINALIZING PROFILE...',
     done:       'REGISTRATION COMPLETE',
     error:      'REGISTRATION FAILED',
@@ -672,6 +891,13 @@ function ProcessingScreen({ registrationData }) {
               </details>
             )}
           </motion.div>
+        )}
+
+        {phase === 'recovery' && (
+          <LinkedInRecoveryPanel
+            linkedinUrl={registrationData?.linkedin}
+            onSubmit={(data) => recoveryResolveRef.current?.(data)}
+          />
         )}
 
         <div className="processing-agents">
