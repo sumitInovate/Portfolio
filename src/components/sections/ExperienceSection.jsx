@@ -10,7 +10,7 @@ export function ExperienceSection() {
   const quests = userData?.experience ?? [];
 
   return (
-    <section id="experience" className="section" style={{ background: 'var(--color-abyss)' }}>
+    <section id="experience" className="section" style={{ background: 'var(--color-cream)' }}>
       <div className="container">
         <RevealOnScroll>
           <h2 className="section-heading">QUEST LOG</h2>

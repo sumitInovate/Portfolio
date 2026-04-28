@@ -12,7 +12,7 @@ export function ProjectsSection() {
   const projects = userData?.projects ?? [];
 
   return (
-    <section id="projects" className="section" style={{ background: 'rgba(8, 10, 24, 0.97)' }}>
+    <section id="projects" className="section" style={{ background: 'rgba(232, 228, 221, 0.97)' }}>
       <div className="container">
         <RevealOnScroll>
           <h2 className="section-heading">DUNGEONS CLEARED</h2>

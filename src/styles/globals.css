@@ -1,58 +1,99 @@
 :root {
-  /* ── Primary Backgrounds ── */
-  --color-void:        #020409;
-  --color-abyss:       #070C17;
-  --color-dungeon:     #0D1526;
-  --color-gate:        #0F1E3A;
+  /* ═══════════════════════════════════════════════════════════════
+     DESIGN SYSTEM: WARM NEUTRAL (Lovable-Inspired)
+     Updated: April 23, 2026
+     ═══════════════════════════════════════════════════════════════ */
 
-  /* ── System Blue ── */
-  --color-system-100:  #C8E6FF;
-  --color-system-400:  #4A9EFF;
-  --color-system-500:  #1E6FE8;
-  --color-system-600:  #0D4FC4;
-  --color-system-glow: rgba(30, 111, 232, 0.35);
+  /* ── Primary Colors ── */
+  --color-cream:           #f7f4ed;    /* Primary background, cards, buttons */
+  --color-charcoal:        #1c1c1c;    /* Primary text, headings, dark surfaces */
+  --color-off-white:       #fcfbf8;    /* Button text on dark, subtle highlights */
+  --color-muted-gray:      #5f5f5d;    /* Secondary text, descriptions, captions */
+  --color-light-border:    #eceae4;    /* Card borders, dividers, image outlines */
 
-  /* ── Purple / Monarch ── */
-  --color-monarch-300: #C4A8FF;
-  --color-monarch-500: #7B4FFF;
-  --color-monarch-glow: rgba(123, 79, 255, 0.4);
+  /* ── Neutral Scale (Opacity-Based from #1c1c1c) ── */
+  --color-charcoal-100:    #1c1c1c;              /* Primary text, headings */
+  --color-charcoal-83:     rgba(28, 28, 28, 0.83);    /* Strong secondary text */
+  --color-charcoal-82:     rgba(28, 28, 28, 0.82);    /* Body copy */
+  --color-charcoal-40:     rgba(28, 28, 28, 0.4);     /* Interactive borders, button outlines */
+  --color-charcoal-4:      rgba(28, 28, 28, 0.04);    /* Subtle hover backgrounds */
+  --color-charcoal-3:      rgba(28, 28, 28, 0.03);    /* Barely-visible overlays */
 
-  /* ── Rank Colors ── */
+  /* ── Interactive & Focus ── */
+  --color-ring-blue:       rgba(59, 130, 246, 0.5);   /* Tailwind focus ring */
+  --shadow-focus:          rgba(0, 0, 0, 0.1) 0px 4px 12px;    /* Soft focus glow */
+
+  /* ── Button Inset Shadow (Signature Detail) ── */
+  --shadow-inset-button: rgba(255, 255, 255, 0.2) 0px 0.5px 0px 0px inset,
+                         rgba(0, 0, 0, 0.2) 0px 0px 0px 0.5px inset,
+                         rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+
+  /* ── Legacy Compatibility (Training System) ── */
   --rank-s:   #FFD700;   /* Gold  */
   --rank-a:   #BF00FF;   /* Purple */
   --rank-b:   #0080FF;   /* Blue */
   --rank-c:   #00CC44;   /* Green */
-  --rank-e:   #5A6478;   /* Iron grey */
-  --rank-f:   #6B7A94;   /* Steel */
-  --rank-g:   #4A8FD4;   /* Sky blue */
-  --rank-j:   #9B6FFF;   /* Violet */
-  --rank-k:   #D4A843;   /* Amber */
+  --rank-d:   #00cc44;
+  --rank-e:   #7BA8D0;   /* Light Blue */
 
-  /* ── Semantic ── */
-  --color-text-primary:   #E8F4FF;
-  --color-text-secondary: #7BA8D0;
-  --color-text-muted:     #3A5570;
-  --color-border:         rgba(74, 158, 255, 0.18);
-  --color-border-active:  rgba(74, 158, 255, 0.55);
+  /* ── Goal Priority Colors ── */
+  --priority-high:    #FF4444;   /* High */
+  --priority-medium:  #FFD700;   /* Medium */
+  --priority-low:     #7BA8D0;   /* Low */
 
-  /* ── Glows & Shadows ── */
-  --shadow-panel:    0 0 40px rgba(30, 111, 232, 0.12);
-  --shadow-hover:    0 0 60px rgba(30, 111, 232, 0.28);
-  --shadow-active:   0 0 80px rgba(123, 79, 255, 0.4);
-  --glow-text-blue:  0 0 20px rgba(74, 158, 255, 0.8);
-  --glow-text-gold:  0 0 20px rgba(255, 215, 0, 0.8);
+  /* ── Deprecated (Void Palette — Do Not Use) ── */
+  --color-void:        #f7f4ed;  /* MAPPED TO CREAM */
+  --color-abyss:       #f7f4ed;  /* MAPPED TO CREAM */
+  --color-dungeon:     #eceae4;  /* MAPPED TO LIGHT BORDER */
+  --color-gate:        #f7f4ed;  /* MAPPED TO CREAM */
+  --color-system-100:  #1c1c1c;  /* MAPPED TO CHARCOAL */
+  --color-system-400:  #1c1c1c;  /* MAPPED TO CHARCOAL */
+  --color-system-500:  #1c1c1c;  /* MAPPED TO CHARCOAL */
+  --color-system-600:  #1c1c1c;  /* MAPPED TO CHARCOAL */
+  --color-system-glow: rgba(0, 0, 0, 0.05);
+  --color-monarch-300: #1c1c1c;
+  --color-monarch-500: #1c1c1c;
+  --color-monarch-glow: rgba(0, 0, 0, 0.05);
+  --color-text-primary:   #1c1c1c;
+  --color-text-secondary: #5f5f5d;
+  --color-text-muted:     #5f5f5d;
+  --color-border:         #eceae4;
+  --color-border-active:  rgba(28, 28, 28, 0.4);
 
-  /* ── Spacing ── */
+  /* ── Shadows (Warm-Neutral Depth) ── */
+  --shadow-panel:    rgba(0, 0, 0, 0.08) 0px 2px 8px;
+  --shadow-hover:    rgba(0, 0, 0, 0.12) 0px 4px 16px;
+  --shadow-active:   rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  --glow-text-blue:  0 0 12px rgba(59, 130, 246, 0.4);
+  --glow-text-gold:  0 0 12px rgba(212, 168, 67, 0.4);
+
+  /* ── Spacing (Base: 8px) ── */
   --space-1:  4px;
   --space-2:  8px;
   --space-3:  12px;
   --space-4:  16px;
+  --space-5:  20px;
   --space-6:  24px;
   --space-8:  32px;
+  --space-10: 40px;
   --space-12: 48px;
   --space-16: 64px;
+  --space-20: 80px;
   --space-24: 96px;
+  --space-28: 112px;
   --space-32: 128px;
+  --space-36: 144px;
+  --space-44: 176px;
+  --space-48: 192px;
+  --space-52: 208px;
+
+  /* ── Border Radius Scale ── */
+  --radius-sm:       4px;       /* Micro: small buttons, interactive elements */
+  --radius-base:     6px;       /* Standard: buttons, inputs, navigation */
+  --radius-md:       8px;       /* Comfortable: compact cards */
+  --radius-lg:       12px;      /* Card: standard cards, image containers */
+  --radius-xl:       16px;      /* Container: large containers, footer */
+  --radius-full:     9999px;    /* Pill: action pills, icon buttons, toggles */
 
   /* ── Layout ── */
   --nav-width: 72px;
@@ -60,16 +101,16 @@
   --container-padding: clamp(var(--space-6), 5vw, var(--space-16));
   --grid-gap: var(--space-6);
 
-  /* ── Type Scale ── */
-  --text-xs:   0.65rem;
-  --text-sm:   0.8rem;
-  --text-base: 1rem;
-  --text-lg:   1.2rem;
-  --text-xl:   1.5rem;
-  --text-2xl:  2rem;
-  --text-3xl:  3rem;
-  --text-4xl:  5rem;
-  --text-hero: clamp(2.5rem, 7vw, 6rem);
+  /* ── Type Scale (Aligned with Design.md Hierarchy) ── */
+  --text-xs:       0.875rem;          /* 14px: caption, small text */
+  --text-sm:       1rem;              /* 16px: button, link small */
+  --text-base:     1rem;              /* 16px: body, button, link */
+  --text-lg:       1.125rem;          /* 18px: body large, intro */
+  --text-xl:       1.25rem;           /* 20px: card title */
+  --text-2xl:      2.25rem;           /* 36px: sub-heading */
+  --text-3xl:      3rem;              /* 48px: section heading */
+  --text-4xl:      3.75rem;           /* 60px: display hero */
+  --text-hero:     clamp(2.25rem, 7vw, 3.75rem);  /* Responsive hero: 36px–60px */
 }
 
 /* ── Reset ── */
@@ -85,21 +126,24 @@ html {
 }
 
 body {
-  background-color: var(--color-void);
-  color: var(--color-text-primary);
+  background-color: var(--color-cream);
+  color: var(--color-charcoal);
   font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 a {
-  color: var(--color-system-400);
-  text-decoration: none;
+  color: var(--color-charcoal);
+  text-decoration: underline;
   transition: color 0.2s ease;
 }
 
 a:hover {
-  color: #fff;
+  color: var(--color-charcoal);
+  text-decoration: underline;
 }
 
 ul { list-style: none; }
@@ -110,40 +154,41 @@ button {
   font-family: inherit;
   border: none;
   background: none;
+  cursor: pointer;
 }
 
-/* ── Custom Cursor: hide native cursor everywhere ── */
+/* ── Custom Cursor: hide native cursor ── */
 *, *::before, *::after {
   cursor: none !important;
 }
 
-/* Outer ghost ring */
+/* Outer cursor ring */
 .sc-ring {
   width: 32px;
   height: 32px;
-  border: 1.5px solid rgba(74, 158, 255, 0.70);
+  border: 1.5px solid var(--color-charcoal-40);
   border-radius: 50%;
   position: fixed;
   top: -16px;
   left: -16px;
   pointer-events: none;
   z-index: 99999;
-  mix-blend-mode: screen;
+  mix-blend-mode: multiply;
   will-change: transform;
 }
 
-/* Inner dot — snaps to position */
+/* Inner cursor dot */
 .sc-dot {
   width: 6px;
   height: 6px;
-  background: var(--color-system-400);
+  background: var(--color-charcoal);
   border-radius: 50%;
   position: fixed;
   top: -3px;
   left: -3px;
   pointer-events: none;
   z-index: 99999;
-  box-shadow: 0 0 6px 2px rgba(74, 158, 255, 0.6);
+  box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.08);
   will-change: transform;
 }
 
@@ -161,31 +206,33 @@ button {
 }
 
 .section {
-  padding: var(--space-16) var(--container-padding);
+  padding: var(--space-20) var(--container-padding);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  background-color: var(--color-cream);
 }
 
 .section-heading {
   font-family: var(--font-heading);
-  font-size: var(--text-2xl);
-  font-weight: 700;
-  letter-spacing: 3px;
-  text-transform: uppercase;
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  letter-spacing: -1.2px;
+  text-transform: none;
   margin-bottom: var(--space-12);
-  color: var(--color-text-primary);
+  color: var(--color-charcoal);
   display: flex;
   align-items: center;
   gap: var(--space-4);
+  line-height: 1;
 }
 
 .section-heading::after {
   content: '';
   flex: 1;
   height: 1px;
-  background: linear-gradient(to right, var(--color-border-active), transparent);
+  background: var(--color-light-border);
 }
 
 .container {

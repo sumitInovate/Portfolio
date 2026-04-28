@@ -21,7 +21,9 @@ export function AudioProvider({ children }) {
     try {
       await audioRef.current?.play();
       setPlaying(true);
-    } catch (_) {}
+    } catch (_err) {
+      setPlaying(false);
+    }
   }, []);
 
   const pause = useCallback(() => {

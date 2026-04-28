@@ -45,7 +45,7 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="section" style={{ background: 'rgba(7, 10, 20, 0.98)' }}>
+    <section id="contact" className="section" style={{ background: 'var(--color-cream)' }}>
       <div className="container" style={{ display: 'flex', justifyContent: 'center' }}>
         <div style={{ width: '100%', maxWidth: '620px' }}>
           <RevealOnScroll>
@@ -174,7 +174,7 @@ export function ContactSection() {
                 {contact.email && <span>✉ {contact.email}</span>}
                 {contact.location && <span>📍 {contact.location}</span>}
                 {contact.linkedin && (
-                  <a href={contact.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-system-400)' }}>
+                  <a href={contact.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-charcoal)' }}>
                     LinkedIn →
                   </a>
                 )}

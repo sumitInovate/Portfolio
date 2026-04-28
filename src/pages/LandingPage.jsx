@@ -8,8 +8,8 @@ import { SystemCursor } from '../components/layout/SystemCursor';
 const FEATURES = [
   {
     icon: '⚡',
-    title: 'Dynamic Portfolios',
-    desc: 'All your data — skills, projects, experience — loaded dynamically from a single profile. Update once, reflect everywhere.',
+    title: 'AI-Powered Profiles',
+    desc: 'Upload your resume and let our AI agents extract your skills, experience, and projects into a stunning RPG portfolio automatically.',
   },
   {
     icon: '🎮',
@@ -19,30 +19,37 @@ const FEATURES = [
   {
     icon: '🔗',
     title: 'Shareable URL',
-    desc: 'Your unique profile lives at codeaether.vercel.com/{username}. One link to share with recruiters, anywhere.',
+    desc: 'Your unique profile lives at codeaether.vercel.app/{username}. One link to share with recruiters, anywhere.',
   },
 ];
 
 const STATS = [
-  { val: '100%', label: 'CUSTOM DATA' },
-  { val: 'RPG', label: 'THEMED UI' },
-  { val: '1 URL', label: 'YOUR LINK' },
+  { val: 'AI',   label: 'PROFILE EXTRACTION' },
+  { val: 'RPG',  label: 'AVATAR GENERATION' },
+  { val: '1 URL', label: 'YOUR UNIQUE LINK' },
 ];
 
 /* ── Sign-In Modal ── */
 function AuthModal({ onClose }) {
   const { signIn, authError, isLoading } = useAuth();
-  const navigate = useNavigate();
+  const navigate   = useNavigate();
   const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [localErr, setLocalErr] = useState('');
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
-    if (!username.trim()) return;
-    const result = await signIn({ username: username.trim() });
+    setLocalErr('');
+    if (!username.trim()) { setLocalErr('Username is required.'); return; }
+    if (!password)        { setLocalErr('Password is required.'); return; }
+
+    const result = await signIn({ username: username.trim(), password });
     if (result.success) {
       navigate(`/${result.username}`);
     }
-  }, [username, signIn, navigate]);
+  }, [username, password, signIn, navigate]);
+
+  const error = localErr || authError;
 
   return (
     <motion.div
@@ -62,21 +69,28 @@ function AuthModal({ onClose }) {
         aria-modal="true"
         aria-labelledby="auth-modal-title"
       >
-        <button className="auth-modal-close" onClick={onClose} aria-label="Close sign in">✕</button>
+        <button
+          className="auth-modal-close"
+          onClick={onClose}
+          aria-label="Close sign in"
+        >
+          ✕
+        </button>
 
         <div className="auth-modal-header">
           <span className="auth-modal-eyebrow">SYSTEM ACCESS</span>
           <h2 id="auth-modal-title" className="auth-modal-title">SIGN IN</h2>
-          <p className="auth-modal-subtitle">Enter your username to access your portfolio</p>
+          <p className="auth-modal-subtitle">Enter your credentials to access your portfolio</p>
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
+          {/* Username */}
           <div className="form-group">
             <label className="form-label" htmlFor="auth-username">USERNAME / SLUG</label>
             <input
               id="auth-username"
               className="form-input"
-              placeholder="e.g. sumit-thakur"
+              placeholder="e.g. john-doe"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
@@ -85,9 +99,24 @@ function AuthModal({ onClose }) {
             />
           </div>
 
-          {authError && (
+          {/* Password */}
+          <div className="form-group">
+            <label className="form-label" htmlFor="auth-password">PASSWORD</label>
+            <input
+              id="auth-password"
+              type="password"
+              className="form-input"
+              placeholder="Your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+          </div>
+
+          {error && (
             <div className="auth-error-msg" role="alert">
-              ⚠ {authError}
+              ⚠ {error}
             </div>
           )}
 
@@ -95,14 +124,21 @@ function AuthModal({ onClose }) {
             id="auth-submit-btn"
             type="submit"
             className="auth-submit-btn"
-            disabled={isLoading || !username.trim()}
+            disabled={isLoading || !username.trim() || !password}
           >
-            {isLoading ? 'AUTHENTICATING...' : 'ACCESS PROFILE →'}
+            {isLoading ? 'AUTHENTICATING…' : 'ACCESS PROFILE →'}
           </button>
         </form>
 
         <p className="auth-demo-hint">
-          Demo: enter <strong>sumit-thakur</strong> to view a live profile
+          New to CodeAether?{' '}
+          <Link
+            to="/register"
+            onClick={onClose}
+            style={{ color: 'var(--color-system-400)', textDecoration: 'none', letterSpacing: '1px' }}
+          >
+            REGISTER FREE ↗
+          </Link>
         </p>
       </motion.div>
     </motion.div>
@@ -112,6 +148,8 @@ function AuthModal({ onClose }) {
 /* ── Main Landing Page ── */
 export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false);
+  const navigate = useNavigate();
+  const { isAuthenticated, authUser, signOut } = useAuth();
 
   return (
     <>
@@ -142,14 +180,45 @@ export default function LandingPage() {
             >
               GITHUB
             </a>
-            <button
-              id="landing-signin-btn"
-              className="landing-topbar-link landing-signin-link glow-btn"
-              onClick={() => setShowAuth(true)}
-              style={{ fontFamily: 'var(--font-system)', fontSize: 'var(--text-xs)', letterSpacing: '2px', padding: '8px 20px' }}
-            >
-              SIGN IN
-            </button>
+
+            {isAuthenticated ? (
+              <>
+                <button
+                  className="landing-topbar-link"
+                  style={{ fontFamily: 'var(--font-system)', fontSize: 'var(--text-xs)', letterSpacing: '2px' }}
+                  onClick={() => navigate(`/${authUser.username}`)}
+                >
+                  MY PROFILE
+                </button>
+                <button
+                  id="landing-signout-btn"
+                  className="landing-topbar-link landing-signin-link glow-btn"
+                  onClick={signOut}
+                  style={{ fontFamily: 'var(--font-system)', fontSize: 'var(--text-xs)', letterSpacing: '2px', padding: '8px 20px' }}
+                >
+                  LOGOUT
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  id="landing-register-btn"
+                  className="landing-topbar-link"
+                  onClick={() => navigate('/register')}
+                  style={{ fontFamily: 'var(--font-system)', fontSize: 'var(--text-xs)', letterSpacing: '2px' }}
+                >
+                  REGISTER
+                </button>
+                <button
+                  id="landing-signin-btn"
+                  className="landing-topbar-link landing-signin-link glow-btn"
+                  onClick={() => setShowAuth(true)}
+                  style={{ fontFamily: 'var(--font-system)', fontSize: 'var(--text-xs)', letterSpacing: '2px', padding: '8px 20px' }}
+                >
+                  SIGN IN
+                </button>
+              </>
+            )}
           </nav>
         </header>
 
@@ -176,7 +245,7 @@ export default function LandingPage() {
             {/* Subheadline */}
             <p className="landing-subheadline">
               CodeAether transforms your developer profile into an immersive,
-              RPG-styled portfolio. Dynamic data. One link. Unforgettable first impression.
+              RPG-styled portfolio. Upload your resume, let AI do the rest. One link. Unforgettable.
             </p>
 
             {/* CTAs */}
@@ -184,12 +253,12 @@ export default function LandingPage() {
               <button
                 id="landing-create-btn"
                 className="landing-btn-primary"
-                onClick={() => setShowAuth(true)}
+                onClick={() => navigate('/register')}
               >
-                ACCESS YOUR PROFILE →
+                CREATE YOUR PROFILE →
               </button>
               <a
-                href="/sumit-thakur"
+                href="/demo"
                 className="landing-btn-secondary"
                 style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
               >

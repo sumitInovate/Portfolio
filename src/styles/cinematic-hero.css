@@ -12,16 +12,16 @@
   z-index: 0;
 }
 
-/* ── Layer 1: Deep void base ────────────────────────────────────── */
+/* ── Layer 1: Deep warm base ────────────────────────────────── */
 .chb-base {
   position: absolute;
   inset: 0;
   background:
     radial-gradient(ellipse 120% 80% at 50% 60%,
-      #030c1e 0%,
-      #020818 30%,
-      #010510 60%,
-      #000103 100%);
+      #f0ece7 0%,
+      #e8e4dd 30%,
+      #dcd8d1 60%,
+      #d4cfc6 100%);
 }
 
 /* ── Layer 2: Character rendered by CharacterDisplay.jsx (hero dashboard center column) ──
@@ -29,7 +29,7 @@
    image is now positioned in the dashboard grid as its own component. ── */
 
 
-/* ── Layer 2: Gate mega-glow (pulsing blue/purple radial) ─────── */
+/* ── Layer 2: Gate mega-glow (pulsing charcoal/warm radial) ─────── */
 .chb-gate-glow {
   position: absolute;
   left: 50%;
@@ -42,11 +42,11 @@
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 50%,
-      rgba(80, 0, 220, 0.28) 0%,
-      rgba(20, 0, 180, 0.22) 18%,
-      rgba(0, 60, 220, 0.18) 35%,
-      rgba(0, 80, 255, 0.10) 55%,
-      rgba(0, 20, 100, 0.05) 75%,
+      rgba(28, 28, 28, 0.28) 0%,
+      rgba(95, 95, 93, 0.22) 18%,
+      rgba(140, 130, 120, 0.18) 35%,
+      rgba(180, 170, 160, 0.10) 55%,
+      rgba(200, 198, 192, 0.05) 75%,
       transparent 100%);
   animation: gateGlowPulse 4s ease-in-out infinite;
   pointer-events: none;
@@ -59,9 +59,9 @@
   max-height: 460px;
   background:
     radial-gradient(circle at 50% 50%,
-      rgba(140, 0, 255, 0.45) 0%,
-      rgba(60, 0, 200, 0.35) 20%,
-      rgba(20, 40, 255, 0.22) 45%,
+      rgba(28, 28, 28, 0.45) 0%,
+      rgba(95, 95, 93, 0.35) 20%,
+      rgba(160, 150, 140, 0.22) 45%,
       transparent 80%);
   animation: gateGlowPulse 3s ease-in-out infinite reverse;
 }
@@ -91,11 +91,11 @@
   max-width: 560px;
   max-height: 560px;
   border-radius: 50%;
-  border: 1px solid rgba(74, 100, 255, 0.20);
+  border: 1px solid rgba(28, 28, 28, 0.20);
   box-shadow:
-    0 0 40px 6px rgba(80, 60, 255, 0.25),
-    0 0 80px 20px rgba(30, 60, 255, 0.12),
-    inset 0 0 40px rgba(100, 80, 255, 0.15);
+    0 0 40px 6px rgba(95, 95, 93, 0.25),
+    0 0 80px 20px rgba(140, 130, 120, 0.12),
+    inset 0 0 40px rgba(160, 150, 140, 0.15);
   animation: ringPulse 5s ease-in-out infinite;
   pointer-events: none;
 }
@@ -133,10 +133,10 @@
 .chb-pillar--1 {
   left: 18%;
   background: linear-gradient(to top,
-      rgba(74, 158, 255, 0.70) 0%,
-      rgba(74, 158, 255, 0.25) 55%,
+      rgba(28, 28, 28, 0.70) 0%,
+      rgba(28, 28, 28, 0.25) 55%,
       transparent 100%);
-  box-shadow: 0 0 18px 4px rgba(74, 158, 255, 0.35);
+  box-shadow: 0 0 18px 4px rgba(95, 95, 93, 0.35);
   animation: pillarFlicker 6.2s ease-in-out infinite;
   animation-delay: 0s;
 }
@@ -146,10 +146,10 @@
   width: 2px;
   height: 55vh;
   background: linear-gradient(to top,
-      rgba(123, 79, 255, 0.60) 0%,
-      rgba(123, 79, 255, 0.20) 60%,
+      rgba(95, 95, 93, 0.60) 0%,
+      rgba(95, 95, 93, 0.20) 60%,
       transparent 100%);
-  box-shadow: 0 0 14px 3px rgba(123, 79, 255, 0.28);
+  box-shadow: 0 0 14px 3px rgba(140, 130, 120, 0.28);
   animation: pillarFlicker 8.1s ease-in-out infinite;
   animation-delay: 1.3s;
 }
@@ -159,11 +159,11 @@
   width: 5px;
   height: 90vh;
   background: linear-gradient(to top,
-      rgba(100, 60, 255, 0.85) 0%,
-      rgba(60, 120, 255, 0.45) 40%,
-      rgba(50, 100, 255, 0.15) 75%,
+      rgba(28, 28, 28, 0.85) 0%,
+      rgba(95, 95, 93, 0.45) 40%,
+      rgba(140, 130, 120, 0.15) 75%,
       transparent 100%);
-  box-shadow: 0 0 30px 8px rgba(80, 60, 255, 0.45);
+  box-shadow: 0 0 30px 8px rgba(95, 95, 93, 0.45);
   animation: pillarFlicker 4.8s ease-in-out infinite;
   animation-delay: 0.4s;
 }
@@ -173,10 +173,10 @@
   width: 2px;
   height: 60vh;
   background: linear-gradient(to top,
-      rgba(123, 79, 255, 0.55) 0%,
-      rgba(100, 120, 255, 0.18) 65%,
+      rgba(95, 95, 93, 0.55) 0%,
+      rgba(140, 130, 120, 0.18) 65%,
       transparent 100%);
-  box-shadow: 0 0 12px 3px rgba(100, 80, 255, 0.25);
+  box-shadow: 0 0 12px 3px rgba(95, 95, 93, 0.25);
   animation: pillarFlicker 7.4s ease-in-out infinite;
   animation-delay: 2.1s;
 }
@@ -185,10 +185,10 @@
   left: 82%;
   height: 50vh;
   background: linear-gradient(to top,
-      rgba(74, 158, 255, 0.50) 0%,
-      rgba(74, 158, 255, 0.15) 60%,
+      rgba(28, 28, 28, 0.50) 0%,
+      rgba(28, 28, 28, 0.15) 60%,
       transparent 100%);
-  box-shadow: 0 0 14px 3px rgba(74, 158, 255, 0.22);
+  box-shadow: 0 0 14px 3px rgba(95, 95, 93, 0.22);
   animation: pillarFlicker 9.0s ease-in-out infinite;
   animation-delay: 0.9s;
 }
@@ -229,9 +229,9 @@
   height: 60vh;
   background:
     radial-gradient(ellipse 50% 100% at 50% 100%,
-      rgba(60, 20, 200, 0.50) 0%,
-      rgba(30, 60, 255, 0.30) 20%,
-      rgba(20, 40, 200, 0.15) 45%,
+      rgba(95, 95, 93, 0.50) 0%,
+      rgba(140, 130, 120, 0.30) 20%,
+      rgba(160, 150, 140, 0.15) 45%,
       transparent 75%);
   pointer-events: none;
   animation: burstPulse 3.5s ease-in-out infinite;
@@ -271,8 +271,8 @@
   height: 160px;
   background:
     radial-gradient(ellipse 100% 100% at 50% 100%,
-      rgba(5, 15, 50, 0.90) 0%,
-      rgba(3, 8, 30, 0.60) 45%,
+      rgba(220, 216, 209, 0.90) 0%,
+      rgba(200, 198, 192, 0.60) 45%,
       transparent 80%);
   animation: fogDrift1 18s ease-in-out infinite alternate;
 }
@@ -281,8 +281,8 @@
   height: 240px;
   background:
     radial-gradient(ellipse 120% 80% at 50% 100%,
-      rgba(3, 8, 25, 0.70) 0%,
-      rgba(2, 5, 20, 0.40) 55%,
+      rgba(200, 198, 192, 0.70) 0%,
+      rgba(180, 178, 172, 0.40) 55%,
       transparent 85%);
   animation: fogDrift2 24s ease-in-out infinite alternate;
   animation-delay: -5s;
@@ -292,8 +292,8 @@
   height: 120px;
   background:
     linear-gradient(to top,
-      rgba(10, 20, 60, 0.85) 0%,
-      rgba(5, 10, 40, 0.50) 50%,
+      rgba(160, 150, 140, 0.85) 0%,
+      rgba(140, 130, 120, 0.50) 50%,
       transparent 100%);
   animation: fogDrift1 12s ease-in-out infinite alternate-reverse;
 }
@@ -333,8 +333,8 @@
   background-image: repeating-linear-gradient(0deg,
       transparent,
       transparent 3px,
-      rgba(0, 20, 80, 0.025) 3px,
-      rgba(0, 20, 80, 0.025) 6px);
+      rgba(28, 28, 28, 0.025) 3px,
+      rgba(28, 28, 28, 0.025) 6px);
   pointer-events: none;
 }
 
@@ -345,8 +345,8 @@
   background:
     radial-gradient(ellipse 100% 100% at 50% 50%,
       transparent 40%,
-      rgba(0, 0, 3, 0.55) 75%,
-      rgba(0, 0, 5, 0.90) 100%);
+      rgba(28, 28, 28, 0.55) 75%,
+      rgba(28, 28, 28, 0.90) 100%);
   pointer-events: none;
 }
 

@@ -13,7 +13,7 @@ import { CertificationsSection } from '../components/sections/CertificationsSect
 import { ContactSection } from '../components/sections/ContactSection';
 import { Footer } from '../components/layout/Footer';
 
-/** Shown when a username slug has no matching data file */
+/** Shown when a username slug has no matching data */
 function UserNotFound({ slug }) {
   const navigate = useNavigate();
   return (
@@ -57,13 +57,21 @@ function UserNotFound({ slug }) {
   );
 }
 
-export default function PortfolioPage() {
-  const { username } = useParams();
+/**
+ * PortfolioPage
+ *
+ * @param {object}  props
+ * @param {string}  [props.forceUsername]  — override the URL param (used for /demo → boilerplate)
+ */
+export default function PortfolioPage({ forceUsername }) {
+  const { username: paramUsername } = useParams();
+  const username = forceUsername ?? paramUsername;
+
   const { fetchUser, userData, userError, userLoading } = useUser();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchUser(username);
+    if (username) fetchUser(username);
   }, [username, fetchUser]);
 
   // Show 404 if user data fetch failed
