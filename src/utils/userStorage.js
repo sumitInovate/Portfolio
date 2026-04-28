@@ -431,3 +431,48 @@ export function migrateLegacyHunterStorage() {
   localStorage.setItem(STORAGE_MIGRATION_KEY, '1');
 }
 
+// ─── Agent State Tracking ────────────────────────────────────────────────────
+// Track pending/success/failed states for each agent with 5s cooldown for retries
+
+const AGENT_STATE_PREFIX = 'ca_agent_state_';
+
+export function setAgentState(agentType, state, data = null, errorMsg = null) {
+  const key = `${AGENT_STATE_PREFIX}${agentType}`;
+  const record = {
+    state, // 'pending' | 'success' | 'failed'
+    data,
+    errorMsg,
+    timestamp: Date.now(),
+  };
+  try {
+    localStorage.setItem(key, JSON.stringify(record));
+  } catch (e) {
+    console.error(`[setAgentState] Failed to save state for ${agentType}:`, e);
+  }
+}
+
+export function getAgentState(agentType) {
+  const key = `${AGENT_STATE_PREFIX}${agentType}`;
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function canRetryAgent(agentType) {
+  const state = getAgentState(agentType);
+  if (!state || state.state !== 'failed') return true;
+  const elapsed = Date.now() - state.timestamp;
+  return elapsed >= 5000; // 5 second cooldown
+}
+
+export function getRetryCountdown(agentType) {
+  const state = getAgentState(agentType);
+  if (!state || state.state !== 'failed') return 0;
+  const elapsed = Date.now() - state.timestamp;
+  const remaining = Math.max(0, 5000 - elapsed);
+  return Math.ceil(remaining / 1000); // Return seconds
+}
+

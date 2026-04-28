@@ -79,7 +79,7 @@ export function HeroSection() {
               transition: 'background 0.2s, box-shadow 0.2s',
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(255, 95, 87, 0.08)';
+              e.currentTarget.style.background = 'rgba(128, 128, 128, 0.22)';
               e.currentTarget.style.boxShadow  = '0 0 12px rgba(255, 95, 87, 0.3)';
             }}
             onMouseLeave={e => {

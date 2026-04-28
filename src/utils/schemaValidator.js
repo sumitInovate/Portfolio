@@ -432,7 +432,7 @@ function validateGitHub(github) {
 
 /**
  * Sanitize and normalize a profile to ensure consistency.
- * Coerces known Gemini output quirks so validation never fails on a real response:
+ * Coerces known LLM output quirks so validation never fails on a real response:
  *   - Trims all string values
  *   - Truncates tagline to ≤ 80 chars
  *   - Defaults invalid rank / status / theme enums to safe values
@@ -541,7 +541,7 @@ export function normalizeProfile(profile) {
       const variant = String(normalizedCert.variant ?? '').toLowerCase();
       const type = String(normalizedCert.type ?? '').toUpperCase();
 
-      // Map common variants emitted by Gemini to supported schema variants.
+      // Map common variants emitted by LLM responses to supported schema variants.
       if (!validVariants.includes(normalizedCert.variant)) {
         if (variant === 'silver') normalizedCert.variant = CertVariantEnum.PURPLE;
         else if (variant === 'bronze') normalizedCert.variant = CertVariantEnum.PURPLE;

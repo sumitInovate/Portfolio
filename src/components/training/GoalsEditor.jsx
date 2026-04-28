@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHunterStore } from '../../stores/hunterStore';
 import { hunterStorage } from '../../utils/training/hunterStorage';
-import { runBadgeAgent } from '../../utils/training/badgeAgent';
+import { runBadgeAgent } from '../../utils/training/gemini-badgeAgent';
 
 const CATEGORIES = [
   { key: 'technology', label: 'TECHNOLOGIES', placeholder: 'e.g., Kubernetes, TypeScript' },

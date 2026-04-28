@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { extractJSON, retryWithBackoff } from '../geminiAgentShared';
+import { extractJSON, retryWithBackoff } from '../aiAgentShared';
+import { setAgentState } from '../userStorage.js';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
@@ -222,6 +223,7 @@ export async function runBadgeAgent({ profile, goals, onProgress }) {
   }
 
   report('Initializing mission generation protocol...', 10);
+  setAgentState('mission_generation', 'pending');
 
   // In frontend-only mode we allow deterministic fallback so training is always usable.
   if (!API_KEY || API_KEY === 'your_gemini_api_key_here') {
@@ -233,15 +235,38 @@ export async function runBadgeAgent({ profile, goals, onProgress }) {
 
   try {
     const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const prompt = buildPrompt(profile, activeGoals);
 
     report('Sending goals to mission planner...', 35);
 
     const responseText = await retryWithBackoff(async () => {
-      const result = await model.generateContent(prompt);
-      return result.response.text();
-    }, 2, 1000, 45000);
+      const result = await model.generateContent({
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              {
+                text: prompt,
+              },
+            ],
+          },
+        ],
+        generationConfig: {
+          maxOutputTokens: 8192,
+          temperature: 0.4,
+          thinkingConfig: { thinkingBudget: 0 },
+        },
+      });
+
+      const response = result.response ?? result;
+      return (response.candidates ?? [])
+        .flatMap((candidate) => candidate.content?.parts ?? [])
+        .filter((part) => typeof part?.text === 'string')
+        .map((part) => part.text)
+        .join('\n')
+        .trim();
+    }, 4, 1500, 60000);
 
     report('Parsing mission payload...', 70);
 
@@ -259,15 +284,19 @@ export async function runBadgeAgent({ profile, goals, onProgress }) {
       report('AI returned empty missions. Switching to local generation...', 85);
       const fallback = buildFallbackBadges(profile, activeGoals);
       report('Local mission set generated.', 100);
+      setAgentState('mission_generation', 'success', fallback);
       return fallback;
     }
 
     report('Mission generation complete.', 100);
+    setAgentState('mission_generation', 'success', normalized);
     return normalized;
   } catch (_error) {
     report('AI mission generation failed. Using local fallback...', 85);
     const fallback = buildFallbackBadges(profile, activeGoals);
     report('Local mission set generated.', 100);
+    const errorMsg = _error?.message || 'API request failed';
+    setAgentState('mission_generation', 'failed', fallback, errorMsg);
     return fallback;
   }
 }

@@ -73,11 +73,11 @@ Note:
 - Training state
   - src/stores/hunterStore.js
   - src/utils/training/hunterStorage.js
-  - src/utils/training/badgeAgent.js
+  - src/utils/training/gemini-badgeAgent.js
 
 - AI generation
   - src/utils/geminiAgents.js
-  - src/utils/geminiAgentShared.js
+  - src/utils/aiAgentShared.js
 
 - Persistence
   - localStorage keys: ca_users, ca_profiles, ca_avatars
@@ -87,7 +87,8 @@ See docs/ARCHITECTURE.md for full details.
 ## Current Behavior
 
 - Registration:
-  - Resume + photo processed by client-side Gemini agents.
+  - Resume is processed by client-side Gemini agents.
+  - Uploaded photo is used directly as the profile avatar.
   - Profile/avatar persisted in localStorage.
 
 - Training:

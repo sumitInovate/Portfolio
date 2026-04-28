@@ -402,7 +402,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(28, 28, 28, 0.08), transparent);
+  background: linear-gradient(90deg, transparent, #5f5f5d, transparent);
   transform: translateX(-100%);
   transition: transform var(--duration-normal) ease;
 }
@@ -413,7 +413,7 @@
 
 .glow-btn:hover {
   background: var(--color-charcoal);
-  box-shadow: 0 0 20px rgba(28, 28, 28, 0.15), inset 0 0 12px rgba(28, 28, 28, 0.05);
+  box-shadow: 0 0 20px rgba(82, 77, 77, 0.15), inset 0 0 12px rgba(82, 77, 77, 0.05);
   color: var(--color-off-white);
 }
 

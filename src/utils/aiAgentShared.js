@@ -3,7 +3,7 @@ export const PROFILE_SCHEMA = `
   "meta": {
     "username": "<slug>",
     "displayName": "<Full Name>",
-    "tagline": "<Short tagline ≤80 chars>",
+    "tagline": "<Short tagline <=80 chars>",
     "avatarUrl": "/sumit_avatar.png",
     "status": "available",
     "theme": "solo-leveling"
@@ -13,7 +13,7 @@ export const PROFILE_SCHEMA = `
     "firstName": "<FIRST NAME UPPERCASE>",
     "lastName": "<LAST NAME UPPERCASE>",
     "role": "<Primary job title>",
-    "stack": "<Top 4-5 technologies separated by · >",
+    "stack": "<Top 4-5 technologies separated by dot>",
     "rank": "<E/D/C/B/A/S based on seniority: E=student, S=senior 5+ years>",
     "level": <years of experience as number>,
     "xp": { "current": <random 3000-9500>, "max": 10000 },
@@ -47,7 +47,7 @@ export const PROFILE_SCHEMA = `
       "rank": "A",
       "guild": "<Company>",
       "role": "<Job title>",
-      "period": "<Month YYYY – Present or Month YYYY>",
+      "period": "<Month YYYY - Present or Month YYYY>",
       "location": "<City, Country>",
       "status": "ACTIVE",
       "achievements": ["<bullet point 1>", "<bullet point 2>"]
@@ -57,7 +57,7 @@ export const PROFILE_SCHEMA = `
     {
       "rank": "A",
       "title": "<Project Name>",
-      "tech": "<tech1 · tech2 · tech3>",
+      "tech": "<tech1 dot tech2 dot tech3>",
       "desc": "<2-3 sentence description>",
       "classified": false,
       "link": null
@@ -111,37 +111,28 @@ Rules:
 Output ONLY valid JSON, nothing else.`;
 }
 
-/**
- * Build a Gemini prompt that generates a full profile from manually provided
- * LinkedIn information (no scraping — user pastes their own data).
- *
- * @param {object} params
- * @param {string} params.username     – CodeAether slug for this user
- * @param {string} [params.linkedinUrl] – LinkedIn profile URL (context only)
- * @param {object} params.linkedinData  – Structured fields from the recovery form
- */
 export function buildLinkedInFallbackPrompt({ username, linkedinUrl = '', linkedinData = {} }) {
   const {
-    firstName  = '',
-    lastName   = '',
-    headline   = '',
-    location   = '',
-    summary    = '',
-    skills     = '',
+    firstName = '',
+    lastName = '',
+    headline = '',
+    location = '',
+    summary = '',
+    skills = '',
     experience = '',
-    education  = '',
+    education = '',
   } = linkedinData;
 
   const lines = [];
   if (firstName || lastName) lines.push(`Name: ${[firstName, lastName].filter(Boolean).join(' ')}`);
-  if (headline)   lines.push(`Headline / Current Role: ${headline}`);
-  if (location)   lines.push(`Location: ${location}`);
-  if (summary)    lines.push(`\nAbout / Summary:\n${summary}`);
-  if (skills)     lines.push(`\nSkills:\n${skills}`);
+  if (headline) lines.push(`Headline / Current Role: ${headline}`);
+  if (location) lines.push(`Location: ${location}`);
+  if (summary) lines.push(`\nAbout / Summary:\n${summary}`);
+  if (skills) lines.push(`\nSkills:\n${skills}`);
   if (experience) lines.push(`\nWork Experience:\n${experience}`);
-  if (education)  lines.push(`\nEducation:\n${education}`);
+  if (education) lines.push(`\nEducation:\n${education}`);
 
-  const profileInfo = lines.join('\n') || '(No additional details — infer from username)';
+  const profileInfo = lines.join('\n') || '(No additional details - infer from username)';
 
   return `You are an expert profile extraction AI for a developer portfolio platform called CodeAether.
 Build a complete developer portfolio profile from the following LinkedIn information manually provided by the user.
@@ -168,18 +159,6 @@ Rules:
 
 Output ONLY valid JSON, nothing else.`;
 }
-
-export const AVATAR_PROMPT = `Transform this person's photo into an RPG fantasy anime portrait in the exact style of "Solo Leveling" manhwa.
-The character should:
-- Have the same face and features as the person in the photo
-- Be rendered in a dark, dramatic Solo Leveling manhwa art style
-- Wear sleek, dark hunter armor with blue/purple glowing runes
-- Have dramatic blue/purple aura particles around them
-- Background: dark void with faint blue magic circles
-- Pose: confident three-quarter view, slight upward gaze
-- Art style: High quality manhwa illustration, cinematic lighting, dark fantasy
-
-Output ONLY the transformed image.`;
 
 export function extractJSON(text) {
   if (!text || typeof text !== 'string') {
@@ -222,37 +201,20 @@ function withTimeout(promise, timeoutMs, timeoutMessage) {
   });
 }
 
-export async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000, timeoutMs = 45000) {
-  let lastError;
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      return await withTimeout(
-        fn(),
-        timeoutMs,
-        `API request timeout after ${timeoutMs}ms (attempt ${attempt + 1})`
-      );
-    } catch (error) {
-      lastError = error;
-      const isLastAttempt = attempt === maxRetries - 1;
-
-      if (
-        error.message?.includes('INVALID') ||
-        error.message?.includes('validation') ||
-        error.message?.includes('schema') ||
-        error.statusCode === 400 ||
-        error.statusCode === 401 ||
-        isLastAttempt
-      ) {
-        throw error;
-      }
-
-      const delayMs = baseDelay * Math.pow(2, attempt);
-      await delay(delayMs);
-    }
+// Single-attempt API call with 60 second timeout.
+// No automatic retries — user triggers via UI button with 5s cooldown.
+// Parameters maxRetries/baseDelay kept for compatibility but not used.
+export async function retryWithBackoff(fn, maxRetries = 1, baseDelay = 5000, timeoutMs = 60000) {
+  try {
+    return await withTimeout(
+      fn(),
+      timeoutMs,
+      `API request timeout after ${timeoutMs}ms`
+    );
+  } catch (error) {
+    // Throw immediately — no automatic retry
+    throw error;
   }
-
-  throw lastError;
 }
 
 function delay(ms) {

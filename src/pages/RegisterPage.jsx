@@ -580,6 +580,8 @@ function ProcessingScreen({ registrationData }) {
         setAlphaMessage('Initializing profile extraction protocol...');
         addLog('[AGENT ALPHA] Profile extraction protocol starting...');
 
+        // Run agent: retry every 5s until success (HTTP 200) or user cancels.
+        // No exponential backoff. Fixed 5-second delay between attempts.
         const runAgentWithSelfRetry = async ({
           agentLabel,
           execute,
@@ -588,7 +590,7 @@ function ProcessingScreen({ registrationData }) {
           setProgress,
           onCompletedMessage,
           onCompletedLog,
-          maxAttempts = Infinity,
+          maxAttempts = Infinity, // Retry until success
         }) => {
           let attempt = 1;
 
@@ -611,17 +613,23 @@ function ProcessingScreen({ registrationData }) {
                 throw reason;
               }
 
+              // Post-API errors (parse / validation) — do not retry.
+              // Only retry network / HTTP failures where no successful response was received.
+              if (reason?.nonRetriable) {
+                throw reason;
+              }
+
               if (attempt >= maxAttempts) {
                 throw reason;
               }
 
               const errorText = reason?.message || `${agentLabel} failed`;
-              const delayMs = Math.min(30000, 1500 * Math.pow(2, Math.max(0, attempt - 1)));
-              const waitSecs = Math.max(1, Math.round(delayMs / 1000));
+              const delayMs = 5000; // Fixed 5-second cooldown
+              const waitSecs = 5;
 
               setStatus('active');
-              setMessage(`Attempt ${attempt} failed. Retrying in ${waitSecs}s...`);
-              addLog(`[${agentLabel}] ${errorText}. Retrying in ${waitSecs}s...`, true);
+              setMessage(`Attempt ${attempt} failed. Auto-retrying in ${waitSecs}s...`);
+              addLog(`[${agentLabel}] ${errorText}. Auto-retrying in ${waitSecs}s...`, true);
 
               let remaining = delayMs;
               while (remaining > 0) {
@@ -645,7 +653,6 @@ function ProcessingScreen({ registrationData }) {
         try {
           profile = await runAgentWithSelfRetry({
             agentLabel: 'AGENT ALPHA',
-            maxAttempts: 3,
             execute: (attempt) => runProfileAgent({
               resumeBase64,
               resumeMimeType: resume.type || 'application/pdf',
