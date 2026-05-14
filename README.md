@@ -98,17 +98,6 @@ See docs/ARCHITECTURE.md for full details.
 - Portfolio:
   - Data is rendered from localStorage profile records.
 
-## Cleanup Applied (April 16, 2026)
-
-Removed unused or backend-only files:
-- src/hooks/useActiveSection.js
-- src/components/ui/CharacterDisplay.jsx
-- src/assets/hero.png
-- src/assets/react.svg
-- src/assets/vite.svg
-- api/agent/run.js
-- api/ai/generate-profile.js
-- api/ai/generate-avatar.js
 
 ## License
 
